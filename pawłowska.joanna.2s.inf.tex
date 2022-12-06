@@ -2,9 +2,36 @@
 
 \usepackage{polski}
 \usepackage{amsmath}
+\usepackage{float}
+
+% breake table between multiple pages
+\usepackage{longtable}
+
+% always add indent
+\usepackage{indentfirst}
+
+% turn on hyperlinks to the bibliography when \cite{}
+\usepackage{hyperref}
+
+% set margins
+\usepackage{geometry}
+\newgeometry{tmargin=2.5cm, bmargin=2.5cm, lmargin=3.5cm, rmargin=1.5cm}
+
+% set spacing (to set '1.5' insert '1.3')
+\linespread{1.3}
+
+% add a dot after any section number
+\usepackage{titlesec}
+\titlelabel{\thetitle.\quad}
 
 
 \begin{document}
+
+% set size of font in section and subsection
+% \Large -> 17.28 pt (the closest to 16 pt)
+% \large -> 14.4 pt (the closest to 14 pt)
+\titleformat*{\section}{\Large\bfseries}
+\titleformat*{\subsection}{\large\bfseries}
 
 \section*{Wstęp}
 
@@ -12,18 +39,18 @@
 
 \section{Rozdział drugi}
 
+\newpage
+
 \section{Przegląd literatury}
 
-Rozdział trzeci zawiera przegląd publikacji naukowych. Tematem przytoczonych prac są różne metody programowania równoległego stosowanego
+Rozdział trzeci zawiera przegląd publikacji naukowych. Tematem omawianych prac są różne metody programowania równoległego stosowane
 w algorytmach uczenia maszynowego.
 
-\subsection{,,Parallel Implementation of Decision Tree Learning Algorithms"}
+\subsection{Równoległe konstrukcje algorytmów drzew decyzyjnych}
 
-Artykuł został napisany przez Nuno Amado, Jo\~{a}o Gama oraz Fernando Silva.
-W pracy zostało przedstawionych kilka strategii
-konstrukcji algorytmów drzew decyzyjnych, które oparte są o techniki takie jak: równoległość zadań, równoległość danych oraz równoległość
-hybrydowa. Następnie w artykule zaprezentowana została autorska implementacja równoległej konstrukcji drzewa decyzyjnego algorytmem
-C4.5. Na zakończenie autorzy przedstawili wyniki działania algorytmu i postawili wstępne wnioski dotyczące działania algorytmu.
+W artykule \cite{parallel-implementation-decision-tree} zostało przedstawionych kilka strategii konstrukcji algorytmów drzew decyzyjnych, które oparte są o techniki takie jak: równoległość zadań,
+równoległość danych oraz równoległość hybrydowa. W pracy zaprezentowana została autorska implementacja równoległej konstrukcji drzewa
+decyzyjnego algorytmem C4.5. Na zakończenie autorzy przedstawili wyniki działania algorytmu i postawili wstępne wnioski dotyczące jego działania.
 
 Artykuł rozpoczyna się od zaprezentowania trudności, które pokazują, jak złożonym zadaniem jest implementacja równoległych
 algorytmów do budowy drzew decyzyjnych. Wymienione zostają m.in. problemy z zastosowaniem statycznego, jak i dynamicznego przydzielania procesorów.
@@ -46,19 +73,19 @@ początku pracy: równoważenie obciążenia oraz konieczność przekazywania da
 przydzielonych podzbiorów przykładów. Wykorzystanie obydwu list jest kluczem do osiągnięcia efektywnego paralelizmu. Wpisy w liście klas zawierają etykietę klasy, indeks
 globalny przykładu w zbiorze treningowym oraz~wskaźnik do węzła w drzewie, do którego należy dany przykład. Listy atrybutów również zawierają wpis dla każdego przykładu
 z atrybutem, jak również indeks wskazujący na odpowiadający wpis w liście klas. Każdy procesor znajduje własne, najlepsze podziały lokalnego zbioru dla każdego atrybutu.
-Następnie komunikuje się z pozostałymi procesorami, w celu ustalenia jednego, najlepszego podziału. Po podziale (utworzeniu węzła), następuje aktualizacja list atrybutów
+Następnie komunikuje się z pozostałymi procesorami, w celu ustalenia jednego, najlepszego podziału. Po podziale (utworzeniu węzła) następuje aktualizacja list atrybutów
 przez każdy procesor, dokonana poprzez rozdzielenie atrybutów w zależności od wartości wybranego atrybutu dzielącego.
 
 Zaprezentowane przez autorów wyniki określone są jako wstępne i wymagające udoskonaleń. Autorzy zdecydowali się jednak na wykorzystanie ich~do~przewidzenia oczekiwanego
 zachowania algorytmu. Implementacja wykorzystuje takie same kryteria oceny jak stosowane w algorytmie C4.5, dlatego autorzy skupili się głównie na analizie czasu potrzebnego do
 zbudowania drzewa. Do wszystkich testów wykorzystany był zestaw danych syntetycznych Agrawal, w którym każdy przykład ma dziewięć atrybutów (pięć ciągłych i~trzy dyskretne).
 
-Z przedstawionych wyników testów wynika, że algorytm wykazał dobre wyniki przyspieszania. Twórcy artykułu przeprowadzili również testy mające na celu sprawdzenie skalowalności.
+Z przedstawionych rezultatów testów wynika, że algorytm wykazał dobre wyniki przyspieszania. Twórcy artykułu przeprowadzili również testy mające na celu sprawdzenie skalowalności.
 Jak w pierwszym przypadku, testy wykazały, że algorytm osiąga dobre wyniki skalowania.
 
-\subsection{,,Parallel ensemble learning of convolutional neural networks and local binary patterns for face recognition"}
+\subsection{Równoległe uczenie zespołowe sieci neuronowych i lokalnych wzorców binarnych}
 
-W artykule autorstwa Jialin Tanga, Qinglang Sub, Binghua Sua, Simon Fongc, Wei Caoa oraz Xueyuan Gonga został zaprezentowany sposób pozwalający na rozpoznawanie twarzy.
+W pracy \cite{parallel-ensemble-learning} został zaprezentowany sposób pozwalający na rozpoznawanie twarzy.
 Podejście oparte jest o równoległe uczenie zespołowe lokalnych wzorców binarnych (LBP) oraz konwolucyjnych sieci neuronowych (CNN). Metoda LBP zastosowana została
 do ekstrakcji cech tekstury twarzy, które posłużyły jako dane treningowe sieci CNN.
 
@@ -77,9 +104,9 @@ znacznie lepszy wynik niż w przypadku zastosowania pojedynczej sieci konwolucyj
 Dla zbioru Yale-B dokładność pojedynczej sieci zbliżona była do 85\%, natomiast zintegrowanej sieci wyniosła około 97,5\%. Na podstawie wyników przeprowadzonych testów
 autorzy stwierdzili, że dokładność sieci neuronowej jest znacznie zmniejszona, gdy do klasyfikacji nie~wykorzystuje się schematu uczenia zespołowego.
 
-\subsection{,,Parallel Genetic Algorithms' Implementation\\Using a Scalable Concurrent Operation in Python"}
+\subsection{Równoległe implementacje algorytmu genetycznego}
 
-W artykule napisanym przez Vladislav Skorpil oraz Vaclav Oujezsky zostały zaprezentowane trzy różne implementacje równoległych algorytmów gentycznych(GA):
+Autorzy artykułu \cite{parallelized-genetic-algorithms} zaprezentowali trzy różne implementacje równoległych algorytmów gentycznych(GA):
 Master-Slave, Coarse-Grained oraz Fine-Grained. Modele zostały zaimplementowane przy użyciu języka programowania Python, brokera wiadomości RabbitMQ
 oraz modułu ,,Scalable Concurrent Operations in Python" (SCOOP) umożliwiającego programowanie równoległe.
 
@@ -104,5 +131,109 @@ populacji oraz zużyciem pamięci. Wraz ze~wzrostem ilości osobników liczba it
 który uzyskiwał najlepszy wynik prawie 27-krotnie szybciej niż model sekwencyjny. Testy przeprowadzone przez autorów potwierdziły korzyści płynące z wykorzystania równoległych
 implementacji algorytmu genetycznego. Wszystkie trzy modele równoległe osiągnęły istotne przyspieszenie i lepszą wydajność w porównaniu z modelem sekwencyjnym. W szczególności
 modele Fine-Grained i Coarse-Grained były bardziej wydajne, ponieważ liczba wymaganych iteracji była znacznie mniejsza niż w modelu sekwencyjnym.
+
+\subsection{Zestawienie artykułów}
+
+W literaturze można znaleźć wiele artykułów na temat metod programowania równoległego wykorzystywanego do optymalizacji pracy algorytmów uczenia maszynowego. 
+Metody jednak mogą znacznie się od siebie różnić w zależności od rodzaju algorytmu, dla którego są przeznaczone. W dalszej części pracy uwaga zostanie poświęcona
+już tylko podejściom stosowanym w algorytmach do budowy drzew decyzyjnych.
+
+Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytułów artykułów, słowa kluczowe oraz krótki opis przybliżający tematykę poruszaną w każdym z artykułów.
+
+    % \renewcommand{\arraystretch}{1.5}
+    % \setlength{\tabcolsep}{0.07\textwidth}
+    \begin{center}
+
+        \begin{longtable}{| c | p{0.19\textwidth} | p{0.62\textwidth} |}
+
+            \hline
+            
+            \textbf{Artykuł} &\textbf{Słowa kluczowe} & \multicolumn{1}{|c|}{\textbf{Opis}}
+            
+            \\ \hline \hline 
+
+            \cite{parallelization-of-decision-tree-al} &
+
+            równoległość wewnątrzwęzłowa; równoległość międzywęzłowa &
+
+            Autorzy przedstawili oraz porównali wydajność czterech metod do równoległej implementacji algorytmu C4.5.
+            W~analizie uwzględniony został rodzaj danych wykorzystywanych do konstrukcji drzewa, który okazał
+            się mieć duży wpływ na wyniki wydajności porównywanych metod. Wyszczególnione zostały trzy rodzaje
+            techniki wewnątrzwęzłowe, które wykorzystują zrównoleglanie przetwarzania danych. Równolegle
+            przetwarzane mogą być rekordy, atrybuty lub ich kombinacja (podejście hybrydowe). W technice międzywęzłowej
+            równolegle przetwarzane są całe węzły -- wszystkie operacje, które muszą zostać przeprowadzone do stworzenia
+            węzła, wykonywane są przez jeden wątek. \\
+            
+            \hline
+
+            \cite{parallel-hoeffding-decision-tree} &
+
+            węzły Hoeffdinga; architektura Master-Slave; &
+
+            Autorzy artykułu zdecydowali się na zrównoleglanie tylko fragmentów algorytmu tj. szukania
+            najlepszego atrybuty do podziału węzła. Zadania przydzielane przez główny procesor
+            (master) innym procesorom (slave) polegają na obliczenia zysku informacyjnego dla określonego
+            atrybutu. Zastosowana architektura oraz zrównoleglanie tylko wyszukiwania atrybutów skutkuje
+            jednak w niskiej skalowalności. Pomimo tego testy wykazały, że przyspieszenie działania algorytmu
+            jest dość efektywne. Dzięki zastoso- \\
+            
+            & 
+
+            &
+            waniu nierówności Hoeffdinga, do podziału drzewa nie muszą być
+            używane wszystkie dane. Ma to dodatkowy wpływ na szybkość działania algorytmu. \\
+            
+            \hline
+
+            \cite{parallel-algorithm-to-induce-decision-trees} &
+
+            równoległość w węźle; duże zbiory danych &
+
+            W artykule przedstawiono algorytm ParDTLT. Algorytm jest równoległą wersją algorytmu
+            DTLT (Decision Trees from Large Training sets), który nie wymaga ładowania w całości wszystkich danych
+            treningowych do pamięci komputera. ParDTLT oparty jest na idei sekwencyjnej budowy struktury
+            drzewa oraz równoległym przetwarzaniu danych w każdym węźle. W danym czasie wszystkie procesory
+            dostępne są dla jednego węzła. W węźle uprzywilejowanym tworzona jest kolejka atrybutów, dla
+            których obliczany jest zrównoważony zysk informacji. Analiza kolejnych
+            atrybutów przydzielane są procesorom do momentu, aż kolejka będzie pusta. Pozostałe węzły drzewa czekają, aż
+            staną się węzłem uprzywilejowanym. Autorzy artykuły przeprowadzili testy algorytmu, które wykazały, że
+            ParDTLT jest szybszy od algorytmów jak np. DTLT czy C4.5. \\
+
+            \hline
+
+            \cite{improved-id3-decision-tree} &
+
+            wielowątkowość; pamięć \newline współdzielona; algorytm ID3 &
+
+            Modyfikacjom został poddany algorytm ID3. Przedstawiono dwie różne implementacje wykorzystujące równoległość.
+            Pierwsza polega na stworzeniu tylu wątków, ile istnieje atrybutów, dla których obliczony musi zostać
+            przyrost informacji. Gdy atrybut dzielący zostanie odnaleziony, tworzony jest węzeł. Następnie ponownie
+            tworzone są kolejne wątki, które przetwarzają atrybuty nowo powstałych węzłów. Dopiero gdy wszystkie wątki
+            zakończą pracę, z dostarczonych wyników składane jest drzewo. Różnica w drugiej implementacji polega na 
+            wykorzystaniu pamięci współdzielonej, dzięki czemu algorytm jest bardziej wydajnym pamięciowo. 
+            Węzeł główny jest współdzielony, dlatego każdy nowy węzeł może być tworzony, gdy tylko atrybut dzielący
+            został odnaleziony. \\
+            
+            \hline
+
+        \caption{Zestawienie artykułów poruszających tematykę równoległości w algorytmach drzew decyzyjnych}
+        \label{table:articles-parallel-decision-tree}
+ 
+        \end{longtable}
+
+    \end{center}
+
+\begin{thebibliography}{6}
+
+    \bibitem{parallel-implementation-decision-tree} Amado, N., Gama, J., \& Silva, F. (2001). Parallel Implementation of Decision Tree Learning Algorithms. Lecture Notes in Computer Science, 6–13. doi:10.1007/3-540-45329-6\_4 
+    \bibitem{parallel-ensemble-learning} Tang, J., Su, Q., Su, B., Fong, S., Cao, W., \& Gong, X. (2020). Parallel Ensemble Learning of Convolutional Neural Networks and Local Binary Patterns for Face Recognition. Computer Methods and Programs in Biomedicine, 105622. doi:10.1016/j.cmpb.2020.105622
+    \bibitem{parallelized-genetic-algorithms} Skorpil, V., Oujezsky, V., \& Tuleja, M. (2020). Testing of Python Models of Parallelized Genetic Algorithms. 2020 43rd International Conference on Telecommunications and Signal Processing (TSP). doi:10.1109/tsp49548.2020.9163475
+    \bibitem{parallelization-of-decision-tree-al} Kubota, K., Nakase, A., Sakai, H., \& Oyanagi, S. (2000). Parallelization of decision tree algorithm and its performance evaluation. Proceedings Fourth International Conference/Exhibition on High Performance Computing in the Asia-Pacific Region. doi:10.1109/hpc.2000.843500
+    \bibitem{parallel-hoeffding-decision-tree} Cal, P., \& Woźniak, M. (2013). Parallel Hoeffding Decision Tree for Streaming Data. Advances in Intelligent Systems and Computing, 27–35. doi:10.1007/978-3-319-00551-5\_4
+    \bibitem{parallel-algorithm-to-induce-decision-trees} Rcega, A. F.-A., Suarez-Cansino, J., \& Flores-Flores, L. G. (2013). A parallel algorithm to induce decision trees for large datasets. 2013 XXIV International Conference on Information, Communication and Automation Technologies (ICAT). doi:10.1109/icat.2013.6684045 
+    \bibitem{improved-id3-decision-tree} Maheshwari, S., Jatav, VK., \& Meena, YK. (2011). Improved ID3 Decision Tree Generation using Shared-Memory and Multi-Threading Approach. 2011 International Conference on Education Technology and Computer (ICETC 2011). doi:10.13140/2.1.3216.2247
+
+\end{thebibliography}
+
 
 \end{document}
