@@ -1,6 +1,8 @@
 \documentclass[12pt]{article}
 
 \usepackage{polski}
+\usepackage[utf8]{inputenc}
+
 \usepackage{amsmath}
 \usepackage{float}
 
@@ -24,6 +26,8 @@
 \usepackage{titlesec}
 \titlelabel{\thetitle.\quad}
 
+% add definition
+\newtheorem{theorem}{Twierdzenie}%[section]
 
 \begin{document}
 
@@ -41,27 +45,51 @@
 
 \subsection{Podstawowe pojęcia}
 
-\subsubsection{Program}
+\subsubsection*{Procesor}
+\noindent Procesor, centralna jednostka obliczeniowa (CPU), to jednostka sprzętowa, która pobiera dane
+z pamięci operacyjnej, interpretuje je i wykonuje. 
 
-\subsubsection{Proces}
+\subsubsection*{Rdzeń}
+\noindent Rdzeniem określany jest fizyczny element procesora, który pozwala na wykonywanie obliczeń.
+W uproszczeniu, im więcej rdzeni posiada procesor, tym szybciej wykonywane mogą być obliczenia.
+Liczba wykonywanych obliczeń w określonej jednostce czasu nazywana jest mocą obliczeniową,
+która jest jednym z czynników branych pod uwagę przy ocenie wydajności procesora.
+Obecnie używa się głównie procesorów wielordzeniowych. Najbardziej prymitywne procesory
+posiadają po 2 rdzenie, natomiast najlepsze modele mogę ich mieć nawet 64 i więcej.
 
-\subsubsection{Rozkaz}
+\subsubsection*{Rozkaz}
+\noindent Rozkazem nazywane jest pojedyncze polecenie, które zapisane jest w postaci liczb binarnych i które
+wykonywane jest przez procesor.
 
-\subsubsection{Wątek}
+\subsubsection*{Instrukcja}
+\noindent Instrukcją nazywane są bardziej złożone zadania, które zapisane są w języku programowania. Instrukcje
+mogą być niskopoziomowe (napisane w asemblerze) lub wysokopoziomowe (napisane np. w C, Java itp.).
+Instrukcje wysokopoziomowe tłumaczone są na kilka instrukcji niskopoziomowych, natomiast instrukcje
+niskopoziomowe tłumaczone są na zbiór rozkazów. Zbiór rozkazów może być dzielony na podzbiory np. w celu
+uruchomienia każdego podzbioru na innym procesorze.
 
-\subsubsection{Procesor}
+\subsubsection*{Program}
+\noindent Program jest zbiorem instrukcji. Programiści rzadko tworzą programy poprzez pisanie pojedynczych rozkazów.
+Najczęściej piszą kod wysoko lub niskopoziomowy, który składa się na całość programu.
 
-\subsubsection{Rdzeń}
+\subsubsection*{Proces}
+\noindent Proces definiowany jest jako program, który jest w trakcie wykonywania. System operacyjny przydziela
+każdemu nowemu procesowi zasoby (m.in. pamięć) oraz nadaje mu unikatowy numer PID (process identifier). 
+
+\subsubsection*{Wątek}
+Wątek jest to niezależny strumień instrukcji, który uruchamiany jest przez system operacyjny
+\cite{programowanie-rozproszone-i-rownolegle}. Programiści często definiują wątek nieco inaczej. Wątek
+traktowany jest jako nieblokująca procedura (metoda), która wykonywana jest niezależnie od procesu, który ją uruchomił.
 
 \subsection{Rodzaje programów}
 
-\subsubsection{Sekwencyjność}
+\subsubsection*{Programy sekwencyjne}
 
-\subsubsection{Równoległość}
+\subsubsection*{Programy współbieżne}
 
-\subsubsection{Współbieżność}
+\subsubsection*{Programy równoległe}
 
-\subsubsection{Rozproszoność}
+\subsubsection*{Programy rozproszone}
 
 \subsection{Wzorce programowania równoległego}
 
@@ -251,6 +279,9 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
 
 \begin{thebibliography}{6}
 
+    \bibitem{programowanie-rozproszone-i-rownolegle} Andrzej Karbowski, Ewa Niewiadomska-Szynkiewicz. Programowanie równoległe i rozproszone. Oficyna Wydawnicza Politechniki Warszawskiej. Warszawa, 2009.
+    \bibitem{wprowadzenie-do-obliczen-rownoleglych} Czech Zbigniew J. Wprowadzenie do obliczeń równoległych. Wydawnictwo Naukowe PWN. Wyd. 2, 2013.
+    
     \bibitem{parallel-implementation-decision-tree} Amado, N., Gama, J., \& Silva, F. (2001). Parallel Implementation of Decision Tree Learning Algorithms. Lecture Notes in Computer Science, 6–13. doi:10.1007/3-540-45329-6\_4 
     \bibitem{parallel-ensemble-learning} Tang, J., Su, Q., Su, B., Fong, S., Cao, W., \& Gong, X. (2020). Parallel Ensemble Learning of Convolutional Neural Networks and Local Binary Patterns for Face Recognition. Computer Methods and Programs in Biomedicine, 105622. doi:10.1016/j.cmpb.2020.105622
     \bibitem{parallelized-genetic-algorithms} Skorpil, V., Oujezsky, V., \& Tuleja, M. (2020). Testing of Python Models of Parallelized Genetic Algorithms. 2020 43rd International Conference on Telecommunications and Signal Processing (TSP). doi:10.1109/tsp49548.2020.9163475
