@@ -37,61 +37,131 @@
 \titleformat*{\section}{\Large\bfseries}
 \titleformat*{\subsection}{\large\bfseries}
 
+% add table of contents
+\tableofcontents
+\newpage
+
 \section*{Wstęp}
+\newpage
 
 \section{Rozdział pierwszy}
+\newpage
 
-\section{Programowanie równoległe i rozproszone}
+\section{Programowanie równoległe}
+W rozdziale przedstawione zostały podstawowe pojęcia związane z tematem programowania równoległego.
+W dalszej części rozdziału przybliżone zostały również różnice pomiędzy programowaniem współbieżnym
+i równoległym, rodzaje dekompozycji, a także wzorce, które stosowane są w programowaniu równoległym.
 
 \subsection{Podstawowe pojęcia}
+\textbf{Procesor} to jednostka sprzętowa, która pobiera dane z pamięci operacyjnej, interpretuje je
+i wykonuje. Pojęcie procesor używane jest na dwa sposoby. Pierwszy, zgodny z podaną definicją, używany
+jest głównie w elektronice. Drugie znaczenie procesora wykorzystywane jest częściej w programowaniu.
+Wówczas pojęcie procesor jest synonimem pojęcia rdzeń.
 
-\subsubsection*{Procesor}
-\noindent Procesor, centralna jednostka obliczeniowa (CPU), to jednostka sprzętowa, która pobiera dane
-z pamięci operacyjnej, interpretuje je i wykonuje. 
-
-\subsubsection*{Rdzeń}
-\noindent Rdzeniem określany jest fizyczny element procesora, który pozwala na wykonywanie obliczeń.
+\textbf{Rdzeniem} określany jest fizyczny element procesora, który pozwala na wykonywanie obliczeń.
 W uproszczeniu, im więcej rdzeni posiada procesor, tym szybciej wykonywane mogą być obliczenia.
-Liczba wykonywanych obliczeń w określonej jednostce czasu nazywana jest mocą obliczeniową,
-która jest jednym z czynników branych pod uwagę przy ocenie wydajności procesora.
-Obecnie używa się głównie procesorów wielordzeniowych. Najbardziej prymitywne procesory
-posiadają po 2 rdzenie, natomiast najlepsze modele mogę ich mieć nawet 64 i więcej.
+Liczba wykonywanych obliczeń w określonej jednostce czasu nazywana jest mocą obliczeniową.
+Jest to jeden z czynników branych pod uwagę przy ocenie wydajności procesora. Obecnie używa się
+głównie procesorów wielordzeniowych.
 
-\subsubsection*{Rozkaz}
-\noindent Rozkazem nazywane jest pojedyncze polecenie, które zapisane jest w postaci liczb binarnych i które
+\textbf{Rozkazem} nazywane jest pojedyncze polecenie, które zapisane jest w postaci liczb binarnych i które
 wykonywane jest przez procesor.
 
-\subsubsection*{Instrukcja}
-\noindent Instrukcją nazywane są bardziej złożone zadania, które zapisane są w języku programowania. Instrukcje
-mogą być niskopoziomowe (napisane w asemblerze) lub wysokopoziomowe (napisane np. w C, Java itp.).
+\textbf{Instrukcja} definiowana jest jako bardziej złożone zadanie, które składa się ze zbioru rozkazów. Instrukcje
+mogą być niskopoziomowe (napisane w asemblerze) lub wysokopoziomowe (napisane w np. C, Java itp.).
 Instrukcje wysokopoziomowe tłumaczone są na kilka instrukcji niskopoziomowych, natomiast instrukcje
-niskopoziomowe tłumaczone są na zbiór rozkazów. Zbiór rozkazów może być dzielony na podzbiory np. w celu
+niskopoziomowe tłumaczone są na zbiór rozkazów. Zbiór rozkazów może być dzielony na podzbiory w celu
 uruchomienia każdego podzbioru na innym procesorze.
 
-\subsubsection*{Program}
-\noindent Program jest zbiorem instrukcji. Programiści rzadko tworzą programy poprzez pisanie pojedynczych rozkazów.
-Najczęściej piszą kod wysoko lub niskopoziomowy, który składa się na całość programu.
+\textbf{Program} jest zbiorem instrukcji, który pozwala na rozwiązanie pewnego problemu obliczeniowego. 
 
-\subsubsection*{Proces}
-\noindent Proces definiowany jest jako program, który jest w trakcie wykonywania. System operacyjny przydziela
-każdemu nowemu procesowi zasoby (m.in. pamięć) oraz nadaje mu unikatowy numer PID (process identifier). 
+\textbf{Proces} najprościej definiowany jest jako program, który jest w trakcie wykonywania. Pod pojęciem procesu zawiera
+się jednak wiele mechanizmów, przy pomocy których system operacyjny zarządza wykonywaniem programu.
+System operacyjny przydziela każdemu nowemu procesowi zasoby m.in. odrębny obszar pamięci operacyjnej, nadaje
+unikatowy numer PID (process identifier), kontroluje stan procesu czy zarządza plikami, z których korzysta proces.
 
-\subsubsection*{Wątek}
-Wątek jest to niezależny strumień instrukcji, który uruchamiany jest przez system operacyjny
-\cite{programowanie-rozproszone-i-rownolegle}. Programiści często definiują wątek nieco inaczej. Wątek
-traktowany jest jako nieblokująca procedura (metoda), która wykonywana jest niezależnie od procesu, który ją uruchomił.
+\textbf{Wątek} jest częścią procesu. Jest to niezależny strumień instrukcji, który uruchamiany jest przez system operacyjny.
+Na jeden proces najczęściej składa się wiele strumieni instrukcji. Instrukcje składające się na wątek są wykonywane sekwencyjnie.
+Pojedynczemu wątkowi nie jest przydzielany odrębny obszar pamięci operacyjnej. Wszystkie wątki istniejące w ramach jednego procesu
+współdzielą przestrzeń adresową -- mają dostęp do pamięci wspólnej.
+Programiści często definiują wątek nieco inaczej. Wątek traktowany jest jako nieblokująca metoda, która wykonywana jest
+niezależnie od procesu, który ją uruchomił \cite{programowanie-rozproszone-i-rownolegle}.
 
-\subsection{Rodzaje programów}
+\subsection{Rodzaje procesów}
 
-\subsubsection*{Programy sekwencyjne}
+\subsubsection{Proces sekwencyjny}
+Proces sekwencyjny charakteryzuje się tym, że każda kolejna instrukcja wykonywana jest dopiero wtedy, gdy zakończy
+się wykonywanie poprzedniej. Kolejność wykonywania instrukcji jest jednoznacznie określona, dlatego proces sekwencyjny
+określany jest jako pojedynczy ciąg instrukcji \cite{wprowadzenie-do-obliczen-rownoleglych}. W przypadku procesu sekwencyjnego
+nie wątek nie jest częścią procesu, natomiast jest z nim utożsamiany \cite{skrypt}.
 
-\subsubsection*{Programy współbieżne}
+\subsubsection{Proces współbieżny}
+Procesy sekwencyjne, które zachodzą na siebie w czasie, określane są jako proces współbieżny. Innymi słowami
+proces współbieżny to proces, który składa się z wielu strumieni instrukcji.
+Instrukcje należące do jednego wątku, wykonywane są, zanim ukończone zostanie wykonywanie
+wszystkich instrukcji tworzących drugi, wcześniej uruchomiony wątek.
 
-\subsubsection*{Programy równoległe}
+Dane są dwa procesy sekwencyjne $P_1$ oraz $P_2$, instrukcje $i_{1,1}, i_{1,2} \in P_1$ oraz $i_{2,1}, i_{2,2} \in P_2$.
+Rysunek [1] przedstawia dwie z wielu możliwych realizacji procesu $P_1$ oraz $P_2$.
 
-\subsubsection*{Programy rozproszone}
+\subsubsection{Proces wykonywany metodą przeplotu}
+Proces wykonywany w przeplocie jest rodzajem procesu współbieżnego, w którym wątki uruchamiane są na przemienne. Gdy uruchomiony
+jest wątek $W_1$ to wątek $W_2$ jest wstrzymywany. Gdy przerywane jest działanie wątku $W_1$ to na pewien czas uruchamiany
+jest wątek $W_2$. Metoda przeplotu pozwala na zastosowanie współbieżności w procesorach jednordzeniowych.
+
+\subsubsection{Proces równoległy}
+Proces równoległy jest szczególnym rodzajem procesu współbieżnego, w którym wątki uruchamiane są jednocześnie. Równoległe uruchamianie
+wątków jest możliwe, tylko gdy wykorzystana jest specjalny sprzęt. Wątki mogą rozdzielne być między rdzenie procesora -- wtedy potrzeby
+jest komputer posiadający procesor kilkurdzeniowy. Inną możliwością jest zastosowanie architektury rozproszonej. Wówczas wątki dzielone są
+między zbiór komputerów, które połączone są ze sobą siecią. Proces równoległy nazywany jest wtedy rozproszonym.
 
 \subsection{Wzorce programowania równoległego}
+
+\subsubsection{Wzorzec Master-Slave}
+Inaczej nazywany Master-Worker.
+
+\subsubsection{Wzorzec Aktor}
+
+\subsubsection{Wzorzec Fork-Join}
+
+\subsubsection{Wzorzec kolejka zadań}
+
+\subsubsection{Wzorzec SIMD}
+(Single Instruction steram, Multiple Data stream)
+
+\subsubsection{Wzorzec MIMD}
+(Multiple Instruction stream, Single Data stream)
+
+\subsection{Rodzaje dekompozycji problemów obliczeniowych}
+W celu równoległego wykonywania programu istotne jest zaprojektowanie podziału zadań, które muszą zostać wykonane,
+aby rozwiązać problem obliczeniowy. Podział problemu na zadania nazywany jest dekompozycją. Wyróżniane są cztery
+rodzaje dekompozycji: danych, funkcjonalna, rekursywna oraz eksploracyjna \cite{wprowadzenie-do-obliczen-rownoleglych}.
+
+\subsubsection{Dekompozycja danych}
+Dekompozycja danych to jeden z najczęściej wykorzystywanych rodzajów dekompozycji. Swoje zastosowanie znajduje szczególnie w przypadkach,
+gdzie przetwarzane są bardzo duże ilości danych. Dekompozycja danych dzieli się dekompozycję danych wejściowych i wyjściowych.
+Pierwsza z nich polega na podziale danych wejściowych na względnie równe części, które przetwarzane są w ramach osobnych zadań. Najczęściej
+zadania polegają na wykonaniu dokładnie takiego samego rodzaju obliczeń. Taki rodzaj dekompozycji charakteryzuje się tym,
+że po zakończeniu zadań, konieczne jest ich zsumowanie.
+
+Dekompozycja danych wyjściowych jest możliwa, gdy elementy danych wyjściowych mogą zostać wyznaczone niezależnie od siebie.
+Wówczas każdemu zadaniu przydzielone zostają te dane wejściowe, które konieczne są do otrzymania poszczególnych elementów
+danych wyjściowych. Wadą takiego podejścia jest stosunkowo niski stopień współbieżności \cite{wprowadzenie-do-obliczen-rownoleglych}.
+
+\subsubsection{Dekompozycja funkcjonalna}
+Dekompozycja funkcjonalna polega na wyodrębnieniu obliczeń, których wykonanie konieczne jest do rozwiązania problemu. Obliczenia dzielone są
+na grupy, które formowane są w funkcje. Zadania funkcji różnią się od siebie i najczęściej przetwarzają różne rodzaje danych \cite{wprowadzenie-do-obliczen-rownoleglych}.
+
+\subsubsection{Dekompozycja rekursywna}
+Dekompozycja rekursywna stosowana jest przy rozwiązywaniu problemów metodą ,,dziel i zwyciężaj". Problem dzielony jest na
+mniejsze podproblemy, które są od siebie niezależne. Każdy podproblem jest mniejszym przypadkiem pierwotnego problemu. Podział
+wykonywany jest tak długo, aż podproblemy stają się trywialne do rozwiązania. Następnie wszystkie rozwiązania scalane są jedno, które
+jest ostatecznym rozwiązaniem \cite{wprowadzenie-do-obliczen-rownoleglych}.
+
+\subsubsection{Dekompozycja eksploracyjna}
+Dekompozycja eksploracyjna używana jest wtedy, gdy zadanie obliczeniowe polega na przeszukiwaniu przestrzeni rozwiązań. Przestrzeń dzielona
+jest na części, które eksplorowane są równolegle przez odrębne zadania. Jeśli rozwiązanie zostanie znalezione w którejś części przestrzeni,
+wówczas wykonywanie pozostałych zadań jest przerywane \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
 \newpage
 
@@ -281,7 +351,9 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
 
     \bibitem{programowanie-rozproszone-i-rownolegle} Andrzej Karbowski, Ewa Niewiadomska-Szynkiewicz. Programowanie równoległe i rozproszone. Oficyna Wydawnicza Politechniki Warszawskiej. Warszawa, 2009.
     \bibitem{wprowadzenie-do-obliczen-rownoleglych} Czech Zbigniew J. Wprowadzenie do obliczeń równoległych. Wydawnictwo Naukowe PWN. Wyd. 2, 2013.
+    \bibitem{skrypt} Krzysztof Banaś, Skrypt Programowanie równoległe i rozproszone. Wydział Fizyki, Matematyki i Informatyki Politechniki Krakowskiej. Kraków, 2011.
     
+
     \bibitem{parallel-implementation-decision-tree} Amado, N., Gama, J., \& Silva, F. (2001). Parallel Implementation of Decision Tree Learning Algorithms. Lecture Notes in Computer Science, 6–13. doi:10.1007/3-540-45329-6\_4 
     \bibitem{parallel-ensemble-learning} Tang, J., Su, Q., Su, B., Fong, S., Cao, W., \& Gong, X. (2020). Parallel Ensemble Learning of Convolutional Neural Networks and Local Binary Patterns for Face Recognition. Computer Methods and Programs in Biomedicine, 105622. doi:10.1016/j.cmpb.2020.105622
     \bibitem{parallelized-genetic-algorithms} Skorpil, V., Oujezsky, V., \& Tuleja, M. (2020). Testing of Python Models of Parallelized Genetic Algorithms. 2020 43rd International Conference on Telecommunications and Signal Processing (TSP). doi:10.1109/tsp49548.2020.9163475
