@@ -58,11 +58,17 @@ i wykonuje. Pojęcie procesor używane jest na dwa sposoby. Pierwszy, zgodny z p
 jest głównie w elektronice. Drugie znaczenie procesora wykorzystywane jest częściej w programowaniu.
 Wówczas pojęcie procesor jest synonimem pojęcia rdzeń.
 
-\textbf{Rdzeniem} określany jest fizyczny element procesora, który pozwala na wykonywanie obliczeń.
+\textbf{Rdzeniem fizycznym} (ang. core) określany jest fizyczny element procesora, który pozwala na wykonywanie obliczeń.
 W uproszczeniu, im więcej rdzeni posiada procesor, tym szybciej wykonywane mogą być obliczenia.
 Liczba wykonywanych obliczeń w określonej jednostce czasu nazywana jest mocą obliczeniową.
 Jest to jeden z czynników branych pod uwagę przy ocenie wydajności procesora. Obecnie używa się
 głównie procesorów wielordzeniowych.
+
+\textbf{Rdzeń logiczny} (ang. logical core, thread) przygotowuje dane wykorzystywane podczas obliczeń wykonywanych przez rdzeń fizyczny.
+Do niedawna na jeden rdzeń fizyczny przypadał jeden rdzeń logiczny.
+Obecnie najczęściej każdemu rdzeniowi fizycznemu przypisuje się dwa rdzenie logiczne.
+Rdzenie logiczne uzależnione są od rdzenia fizycznego, do którego są przypisane, natomiast nie są zależnie
+od operacji rdzeni logicznych przypisanych do odrębnego rdzenia fizycznego.
 
 \textbf{Rozkazem} nazywane jest pojedyncze polecenie, które zapisane jest w postaci liczb binarnych i które
 wykonywane jest przez procesor.
@@ -80,10 +86,11 @@ się jednak wiele mechanizmów, przy pomocy których system operacyjny zarządza
 System operacyjny przydziela każdemu nowemu procesowi zasoby m.in. odrębny obszar pamięci operacyjnej, nadaje
 unikatowy numer PID (process identifier), kontroluje stan procesu czy zarządza plikami, z których korzysta proces.
 
-\textbf{Wątek} jest częścią procesu. Jest to niezależny strumień instrukcji, który uruchamiany jest przez system operacyjny.
+\textbf{Wątek} (ang. thread) jest częścią procesu. Jest to niezależny strumień instrukcji, który uruchamiany jest przez system operacyjny.
 Na jeden proces najczęściej składa się wiele strumieni instrukcji. Instrukcje składające się na wątek są wykonywane sekwencyjnie.
-Pojedynczemu wątkowi nie jest przydzielany odrębny obszar pamięci operacyjnej. Wszystkie wątki istniejące w ramach jednego procesu
-współdzielą przestrzeń adresową -- mają dostęp do pamięci wspólnej.
+Wszystkie wątki istniejące w ramach jednego procesu współdzielą przestrzeń adresową -- mają dostęp do pamięci wspólnej.
+Z tego powodu komunikacja między wątkami należącymi do jednego procesu jest łatwa i niewymaga wsparcia systemu operacyjnego.
+Przekazanie danych polega na podaniu jedynie wskaźnika do miejsca w pamięci.
 Programiści często definiują wątek nieco inaczej. Wątek traktowany jest jako nieblokująca metoda, która wykonywana jest
 niezależnie od procesu, który ją uruchomił \cite{programowanie-rozproszone-i-rownolegle}.
 
@@ -116,21 +123,48 @@ jest komputer posiadający procesor kilkurdzeniowy. Inną możliwością jest za
 między zbiór komputerów, które połączone są ze sobą siecią. Proces równoległy nazywany jest wtedy rozproszonym.
 
 \subsection{Wzorce programowania równoległego}
+Istnieje wiele wzorców programowania równoległego. Podczas implementacji algorytmu równoległego ciężko jest dobrać jeden pasujący wzorzec.
+Wzorce traktowane są raczej jako ogólne wskazówki, które mogą być przydatne podczas projektowania algorytmu. Najczęściej programy
+tworzone są zgodnie z kilkoma wzorcami, które łączone są ze sobą w celu stworzenia implementacji dopasowanej do konkretnego przypadku.
+W tym rozdziale opisane zostały wybrane wzorce programowania równoległego.
 
 \subsubsection{Wzorzec Master-Slave}
-Inaczej nazywany Master-Worker.
-
-\subsubsection{Wzorzec Aktor}
+Wzorzec inaczej nazywany jest wzorcem Manager-Worker. Procesor, który nazywany jest zarządcą (Master/Manager)
+definiuje zadania i rozdziela je pomiędzy wykonawców (Worker/Slave). Gdy wykonawca zrealizuje zadanie, przesyła
+otrzymane wyniki zarządcy, którego zadaniem jest scalić wszystkie zgromadzone wyniki w jedno rozwiązanie problemu.
+Wzorzec nie sprawdza się w problemach o dużym rozdrobnieniu zadań. Zarządca nie jest w stanie odpowiednio szybko generować
+i przydzielać zadań, ponieważ wykonawcy bardzo szybko kończą realizację zadań \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
 \subsubsection{Wzorzec Fork-Join}
+Wzorzec Fork-Join to jeden z najczęściej stosowanych podejść. Program rozpoczyna pracę jako jeden wątek główny.
+W momencie, gdy w kodzie programu pojawia się instrukcja, która wymaga równoległego przetwarzania, tworzone są dodatkowe wątki,
+które wykonywane są równolegle.
+Dopóki wszystkie wątki nie zakończą pracy i nie zostaną zniszczone, wątek główny nie może zacząć wykonywać kolejnej części kodu.
+Etap fork polega na ustawieniu argumentów, które następnie otrzymuje każdy wątek.
+Etap join łączy wyniki po zakończeniu pracy wszystkich wątków równoległych \cite{parallel-design-patterns}.
 
-\subsubsection{Wzorzec kolejka zadań}
+\subsubsection{Wzorzec Map-Reduce}
+Wzorzec Map-Reduce jest podobny do wzorca Fork-Join. Dane wejściowe są przetwarzane równolegle przez wiele wątków.
+Następnie wszystkie uzyskane wyniki są łączone, aż do momentu uzyskania jednego rozwiązania.
+W działaniu obydwa wzorce są prawie identycznie, jednak wzorce wywodzą się z różnych pomysłów.
+% Chociaż są one strukturalnie identyczne, rodzaj wykonywanej pracy odzwierciedla nieco inną filozofię.
+Idea mapowania pochodzi z technik stosowanych w funkcjonalnych językach programowania.
+Kilka mapowań może być połączonych w łańcuchy składające się na większe funkcje.
+Etapy map i reduce są od siebie bardziej niezależne niż etapy fork i join
+Mapowanie może występować bez redukcji, a redukcja bez mapowania \cite{parallel-design-patterns}.
 
-\subsubsection{Wzorzec SIMD}
-(Single Instruction steram, Multiple Data stream)
+\subsubsection{Wzorzec Work Pool}
+Wzorzec puli zadań (Work Pool) wykorzystywany jest w algorytmach, w których zadania generowane są dynamicznie
+lub gdy istotnie różnią się złożonością. Zadania przechowywane są w strukturze danych, która dostępna jest w pamięci współdzielonej.
+Najczęściej wykorzystywane struktury to lista, kolejka priorytetowe czy tablica z haszowaniem. W momencie gdy procesor zakończył
+obliczanie zadania, dostarczane jest mu kolejne zadanie przechowywane w strukturze.
 
-\subsubsection{Wzorzec MIMD}
-(Multiple Instruction stream, Single Data stream)
+\subsubsection{Wzorzec Pipeline}
+Wzorzec Pipeline polega na potokowym przetwarzaniu danych. Nazywany jest również metodą producent i konsumenta.
+Strumień danych przekazywany jest do kolejnych procesorów, które modyfikują oryginalny strumień.
+Każdy z procesorów wykonuje na danych inny rodzaj obliczeń, które należą do etapu potoku.
+Dane wyjściowe jednego etapu stają się danymi wejściowymi kolejnego etapu.
+Stosowanie wzorca jest efektywne, jeśli czasy realizacji poszczególnych etapów są podobne \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
 \subsection{Rodzaje dekompozycji problemów obliczeniowych}
 W celu równoległego wykonywania programu istotne jest zaprojektowanie podziału zadań, które muszą zostać wykonane,
@@ -352,7 +386,7 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
     \bibitem{programowanie-rozproszone-i-rownolegle} Andrzej Karbowski, Ewa Niewiadomska-Szynkiewicz. Programowanie równoległe i rozproszone. Oficyna Wydawnicza Politechniki Warszawskiej. Warszawa, 2009.
     \bibitem{wprowadzenie-do-obliczen-rownoleglych} Czech Zbigniew J. Wprowadzenie do obliczeń równoległych. Wydawnictwo Naukowe PWN. Wyd. 2, 2013.
     \bibitem{skrypt} Krzysztof Banaś, Skrypt Programowanie równoległe i rozproszone. Wydział Fizyki, Matematyki i Informatyki Politechniki Krakowskiej. Kraków, 2011.
-    
+    \bibitem{parallel-design-patterns} OpenCSF Project [Online]. Available: \url{https://w3.cs.jmu.edu/kirkpams/OpenCSF/Books/csf/html/ParallelDesign.html}. Dostęp: 12.12.2022
 
     \bibitem{parallel-implementation-decision-tree} Amado, N., Gama, J., \& Silva, F. (2001). Parallel Implementation of Decision Tree Learning Algorithms. Lecture Notes in Computer Science, 6–13. doi:10.1007/3-540-45329-6\_4 
     \bibitem{parallel-ensemble-learning} Tang, J., Su, Q., Su, B., Fong, S., Cao, W., \& Gong, X. (2020). Parallel Ensemble Learning of Convolutional Neural Networks and Local Binary Patterns for Face Recognition. Computer Methods and Programs in Biomedicine, 105622. doi:10.1016/j.cmpb.2020.105622
