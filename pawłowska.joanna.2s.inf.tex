@@ -48,11 +48,17 @@
 \newpage
 
 \section{Programowanie równoległe}
-W rozdziale przedstawione zostały podstawowe pojęcia związane z tematem programowania równoległego.
-W dalszej części rozdziału przybliżone zostały również różnice pomiędzy programowaniem współbieżnym
-i równoległym, rodzaje dekompozycji, a także wzorce, które stosowane są w programowaniu równoległym.
+Rozdział ma na celu uporządkowanie istotnych pojęć związanych z tematem programowania
+równoległego. Opisane zostały podstawowe zagadnienia, różnice między programowaniem współbieżnym
+i równoległym, rodzaje dekompozycji zadań, a także wzorce, stosowane w równoległych 
+implementacjach algorytmów.
 
 \subsection{Podstawowe pojęcia}
+Przetwarzanie równoległe jest tematem omawianym w ramach dziedziny systemów operacyjnych.
+Celem pracy nie jest skupianie się wokół zagadnień specyficznych dla systemów operacyjnych.
+Rozumienie podstawowych pojęć jest jednak istotne podczas tworzenia równoległych implementacji
+algorytmów, dlatego zostały one poniżej przedstawione. 
+
 \textbf{Procesor} to jednostka sprzętowa, która pobiera dane z pamięci operacyjnej, interpretuje je
 i wykonuje. Pojęcie procesor używane jest na dwa sposoby. Pierwszy, zgodny z podaną definicją, używany
 jest głównie w elektronice. Drugie znaczenie procesora wykorzystywane jest częściej w programowaniu.
@@ -74,7 +80,7 @@ od operacji rdzeni logicznych przypisanych do odrębnego rdzenia fizycznego.
 wykonywane jest przez procesor.
 
 \textbf{Instrukcja} definiowana jest jako bardziej złożone zadanie, które składa się ze zbioru rozkazów. Instrukcje
-mogą być niskopoziomowe (napisane w asemblerze) lub wysokopoziomowe (napisane w np. C, Java itp.).
+mogą być niskopoziomowe (napisane w np. asemblerze) lub wysokopoziomowe (napisane w np. C, Java).
 Instrukcje wysokopoziomowe tłumaczone są na kilka instrukcji niskopoziomowych, natomiast instrukcje
 niskopoziomowe tłumaczone są na zbiór rozkazów. Zbiór rozkazów może być dzielony na podzbiory w celu
 uruchomienia każdego podzbioru na innym procesorze.
@@ -84,7 +90,7 @@ uruchomienia każdego podzbioru na innym procesorze.
 \textbf{Proces} najprościej definiowany jest jako program, który jest w trakcie wykonywania. Pod pojęciem procesu zawiera
 się jednak wiele mechanizmów, przy pomocy których system operacyjny zarządza wykonywaniem programu.
 System operacyjny przydziela każdemu nowemu procesowi zasoby m.in. odrębny obszar pamięci operacyjnej, nadaje
-unikatowy numer PID (process identifier), kontroluje stan procesu czy zarządza plikami, z których korzysta proces.
+unikatowy numer PID (process identifier), kontroluje stan procesu oraz zarządza plikami, z których korzysta proces.
 
 \textbf{Wątek} (ang. thread) jest częścią procesu. Jest to niezależny strumień instrukcji, który uruchamiany jest przez system operacyjny.
 Na jeden proces najczęściej składa się wiele strumieni instrukcji. Instrukcje składające się na wątek są wykonywane sekwencyjnie.
@@ -92,7 +98,8 @@ Wszystkie wątki istniejące w ramach jednego procesu współdzielą przestrzeń
 Z tego powodu komunikacja między wątkami należącymi do jednego procesu jest łatwa i niewymaga wsparcia systemu operacyjnego.
 Przekazanie danych polega na podaniu jedynie wskaźnika do miejsca w pamięci.
 Programiści często definiują wątek nieco inaczej. Wątek traktowany jest jako nieblokująca metoda, która wykonywana jest
-niezależnie od procesu, który ją uruchomił \cite{programowanie-rozproszone-i-rownolegle}.
+niezależnie od procesu, który ją uruchomił \cite{programowanie-rozproszone-i-rownolegle}. Określenie wątek jest również używane
+wymienne z określeniem rdzeń logiczny. Wątek w znaczeniu rdzenia logicznego nie jest jednak równoznaczny przedstawionej definicji wątku.
 
 \subsection{Rodzaje procesów}
 
@@ -100,7 +107,7 @@ niezależnie od procesu, który ją uruchomił \cite{programowanie-rozproszone-i
 Proces sekwencyjny charakteryzuje się tym, że każda kolejna instrukcja wykonywana jest dopiero wtedy, gdy zakończy
 się wykonywanie poprzedniej. Kolejność wykonywania instrukcji jest jednoznacznie określona, dlatego proces sekwencyjny
 określany jest jako pojedynczy ciąg instrukcji \cite{wprowadzenie-do-obliczen-rownoleglych}. W przypadku procesu sekwencyjnego
-nie wątek nie jest częścią procesu, natomiast jest z nim utożsamiany \cite{skrypt}.
+wątek nie jest częścią procesu, natomiast jest z nim utożsamiany \cite{skrypt}.
 
 \subsubsection{Proces współbieżny}
 Procesy sekwencyjne, które zachodzą na siebie w czasie, określane są jako proces współbieżny. Innymi słowami
@@ -108,68 +115,23 @@ proces współbieżny to proces, który składa się z wielu strumieni instrukcj
 Instrukcje należące do jednego wątku, wykonywane są, zanim ukończone zostanie wykonywanie
 wszystkich instrukcji tworzących drugi, wcześniej uruchomiony wątek.
 
-Dane są dwa procesy sekwencyjne $P_1$ oraz $P_2$, instrukcje $i_{1,1}, i_{1,2} \in P_1$ oraz $i_{2,1}, i_{2,2} \in P_2$.
+Dane są dwa procesy sekwencyjne $P_1$ i $P_2$, instrukcje $i_{1,1}, i_{1,2} \in P_1$ oraz $i_{2,1}, i_{2,2} \in P_2$.
 Rysunek [1] przedstawia dwie z wielu możliwych realizacji procesu $P_1$ oraz $P_2$.
 
 \subsubsection{Proces wykonywany metodą przeplotu}
-Proces wykonywany w przeplocie jest rodzajem procesu współbieżnego, w którym wątki uruchamiane są na przemienne. Gdy uruchomiony
+Proces wykonywany w przeplocie jest rodzajem procesu współbieżnego, w którym wątki uruchamiane są na przemiennie. Gdy uruchomiony
 jest wątek $W_1$ to wątek $W_2$ jest wstrzymywany. Gdy przerywane jest działanie wątku $W_1$ to na pewien czas uruchamiany
 jest wątek $W_2$. Metoda przeplotu pozwala na zastosowanie współbieżności w procesorach jednordzeniowych.
 
 \subsubsection{Proces równoległy}
 Proces równoległy jest szczególnym rodzajem procesu współbieżnego, w którym wątki uruchamiane są jednocześnie. Równoległe uruchamianie
-wątków jest możliwe, tylko gdy wykorzystana jest specjalny sprzęt. Wątki mogą rozdzielne być między rdzenie procesora -- wtedy potrzeby
+wątków jest możliwe, tylko gdy wykorzystany jest specjalny sprzęt. Wątki rozdzielane mogą być między rdzenie procesora -- wtedy potrzeby
 jest komputer posiadający procesor kilkurdzeniowy. Inną możliwością jest zastosowanie architektury rozproszonej. Wówczas wątki dzielone są
 między zbiór komputerów, które połączone są ze sobą siecią. Proces równoległy nazywany jest wtedy rozproszonym.
 
-\subsection{Wzorce programowania równoległego}
-Istnieje wiele wzorców programowania równoległego. Podczas implementacji algorytmu równoległego ciężko jest dobrać jeden pasujący wzorzec.
-Wzorce traktowane są raczej jako ogólne wskazówki, które mogą być przydatne podczas projektowania algorytmu. Najczęściej programy
-tworzone są zgodnie z kilkoma wzorcami, które łączone są ze sobą w celu stworzenia implementacji dopasowanej do konkretnego przypadku.
-W tym rozdziale opisane zostały wybrane wzorce programowania równoległego.
-
-\subsubsection{Wzorzec Master-Slave}
-Wzorzec inaczej nazywany jest wzorcem Manager-Worker. Procesor, który nazywany jest zarządcą (Master/Manager)
-definiuje zadania i rozdziela je pomiędzy wykonawców (Worker/Slave). Gdy wykonawca zrealizuje zadanie, przesyła
-otrzymane wyniki zarządcy, którego zadaniem jest scalić wszystkie zgromadzone wyniki w jedno rozwiązanie problemu.
-Wzorzec nie sprawdza się w problemach o dużym rozdrobnieniu zadań. Zarządca nie jest w stanie odpowiednio szybko generować
-i przydzielać zadań, ponieważ wykonawcy bardzo szybko kończą realizację zadań \cite{wprowadzenie-do-obliczen-rownoleglych}.
-
-\subsubsection{Wzorzec Fork-Join}
-Wzorzec Fork-Join to jeden z najczęściej stosowanych podejść. Program rozpoczyna pracę jako jeden wątek główny.
-W momencie, gdy w kodzie programu pojawia się instrukcja, która wymaga równoległego przetwarzania, tworzone są dodatkowe wątki,
-które wykonywane są równolegle.
-Dopóki wszystkie wątki nie zakończą pracy i nie zostaną zniszczone, wątek główny nie może zacząć wykonywać kolejnej części kodu.
-Etap fork polega na ustawieniu argumentów, które następnie otrzymuje każdy wątek.
-Etap join łączy wyniki po zakończeniu pracy wszystkich wątków równoległych \cite{parallel-design-patterns}.
-
-\subsubsection{Wzorzec Map-Reduce}
-Wzorzec Map-Reduce jest podobny do wzorca Fork-Join. Dane wejściowe są przetwarzane równolegle przez wiele wątków.
-Następnie wszystkie uzyskane wyniki są łączone, aż do momentu uzyskania jednego rozwiązania.
-W działaniu obydwa wzorce są prawie identycznie, jednak wzorce wywodzą się z różnych pomysłów.
-% Chociaż są one strukturalnie identyczne, rodzaj wykonywanej pracy odzwierciedla nieco inną filozofię.
-Idea mapowania pochodzi z technik stosowanych w funkcjonalnych językach programowania.
-Kilka mapowań może być połączonych w łańcuchy składające się na większe funkcje.
-Etapy map i reduce są od siebie bardziej niezależne niż etapy fork i join
-Mapowanie może występować bez redukcji, a redukcja bez mapowania \cite{parallel-design-patterns}.
-
-\subsubsection{Wzorzec Work Pool}
-Wzorzec puli zadań (Work Pool) wykorzystywany jest w algorytmach, w których zadania generowane są dynamicznie
-lub gdy istotnie różnią się złożonością. Zadania przechowywane są w strukturze danych, która dostępna jest w pamięci współdzielonej.
-Najczęściej wykorzystywane struktury to lista, kolejka priorytetowe czy tablica z haszowaniem. W momencie gdy procesor zakończył
-obliczanie zadania, dostarczane jest mu kolejne zadanie przechowywane w strukturze.
-
-\subsubsection{Wzorzec Pipeline}
-Wzorzec Pipeline polega na potokowym przetwarzaniu danych. Nazywany jest również metodą producent i konsumenta.
-Strumień danych przekazywany jest do kolejnych procesorów, które modyfikują oryginalny strumień.
-Każdy z procesorów wykonuje na danych inny rodzaj obliczeń, które należą do etapu potoku.
-Dane wyjściowe jednego etapu stają się danymi wejściowymi kolejnego etapu.
-Stosowanie wzorca jest efektywne, jeśli czasy realizacji poszczególnych etapów są podobne \cite{wprowadzenie-do-obliczen-rownoleglych}.
-
 \subsection{Rodzaje dekompozycji problemów obliczeniowych}
-W celu równoległego wykonywania programu istotne jest zaprojektowanie podziału zadań, które muszą zostać wykonane,
-aby rozwiązać problem obliczeniowy. Podział problemu na zadania nazywany jest dekompozycją. Wyróżniane są cztery
-rodzaje dekompozycji: danych, funkcjonalna, rekursywna oraz eksploracyjna \cite{wprowadzenie-do-obliczen-rownoleglych}.
+W celu równoległego wykonywania programu istotne jest zaprojektowanie podziału zadań obliczeniowych. Podział problemu na
+zadania nazywany jest dekompozycją. Wyróżniane są cztery rodzaje dekompozycji \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
 \subsubsection{Dekompozycja danych}
 Dekompozycja danych to jeden z najczęściej wykorzystywanych rodzajów dekompozycji. Swoje zastosowanie znajduje szczególnie w przypadkach,
@@ -182,20 +144,71 @@ Dekompozycja danych wyjściowych jest możliwa, gdy elementy danych wyjściowych
 Wówczas każdemu zadaniu przydzielone zostają te dane wejściowe, które konieczne są do otrzymania poszczególnych elementów
 danych wyjściowych. Wadą takiego podejścia jest stosunkowo niski stopień współbieżności \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
+Model, w którym zrównoleglanie osiągane jest poprzez zastosowanie dekompozycji danych, to model określany jest pojęciem
+\textbf{równoległość danych} (równoległość danych). 
+
 \subsubsection{Dekompozycja funkcjonalna}
 Dekompozycja funkcjonalna polega na wyodrębnieniu obliczeń, których wykonanie konieczne jest do rozwiązania problemu. Obliczenia dzielone są
-na grupy, które formowane są w funkcje. Zadania funkcji różnią się od siebie i najczęściej przetwarzają różne rodzaje danych \cite{wprowadzenie-do-obliczen-rownoleglych}.
+na grupy, które formowane są w funkcje. Zadania funkcji różnią się od siebie i najczęściej przetwarzają różne rodzaje danych
+\cite{wprowadzenie-do-obliczen-rownoleglych}.
+
+Zastosowanie dekompozycji funkcjonalnej oznacza Wykorzystanie \textbf(równoległości zadań) (task parallelism).
 
 \subsubsection{Dekompozycja rekursywna}
 Dekompozycja rekursywna stosowana jest przy rozwiązywaniu problemów metodą ,,dziel i zwyciężaj". Problem dzielony jest na
 mniejsze podproblemy, które są od siebie niezależne. Każdy podproblem jest mniejszym przypadkiem pierwotnego problemu. Podział
-wykonywany jest tak długo, aż podproblemy stają się trywialne do rozwiązania. Następnie wszystkie rozwiązania scalane są jedno, które
-jest ostatecznym rozwiązaniem \cite{wprowadzenie-do-obliczen-rownoleglych}.
+wykonywany jest tak długo, aż podproblemy stają się trywialne do rozwiązania. Następnie wszystkie rozwiązania scalane są jedno,
+które jest ostatecznym rozwiązaniem \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
 \subsubsection{Dekompozycja eksploracyjna}
 Dekompozycja eksploracyjna używana jest wtedy, gdy zadanie obliczeniowe polega na przeszukiwaniu przestrzeni rozwiązań. Przestrzeń dzielona
 jest na części, które eksplorowane są równolegle przez odrębne zadania. Jeśli rozwiązanie zostanie znalezione w którejś części przestrzeni,
 wówczas wykonywanie pozostałych zadań jest przerywane \cite{wprowadzenie-do-obliczen-rownoleglych}.
+
+\subsection{Wzorce programowania równoległego}
+Istnieje wiele wzorców programowania równoległego. Podczas implementacji algorytmu równoległego ciężko jest dobrać jeden, najlepiej pasujący wzorzec.
+Z tego powodu wzorce traktowane są raczej jako ogólne wskazówki, które mogą być przydatne podczas projektowania algorytmu. Najczęściej programy
+tworzone są zgodnie z kilkoma wzorcami, które łączone są ze sobą w celu stworzenia implementacji dopasowanej do konkretnego przypadku.
+W tym rozdziale opisane zostały wybrane wzorce programowania równoległego.
+
+\subsubsection{Wzorzec Master-Slave}
+Wzorzec inaczej nazywany jest wzorcem Manager-Worker. Wątek, który nazywany jest zarządcą (Master/Manager)
+definiuje zadania i rozdziela je pomiędzy wykonawców (Worker/Slave). Gdy wykonawca zrealizuje zadanie, przesyła
+otrzymane wyniki zarządcy, którego zadaniem jest scalić wszystkie zgromadzone wyniki w jedno rozwiązanie problemu.
+Wzorzec nie sprawdza się w problemach o dużym rozdrobnieniu zadań. Zarządca nie jest w stanie odpowiednio szybko generować
+i przydzielać zadań, ponieważ wykonawcy bardzo szybko kończą realizację zadań \cite{wprowadzenie-do-obliczen-rownoleglych}.
+
+\subsubsection{Wzorzec Fork-Join}
+Wzorzec Fork-Join to jeden z najczęściej stosowanych wzorców. Wykonywanie programu rozpoczyna się
+w ramach jeden wątku głównego. W momencie, gdy w kodzie programu pojawia się instrukcja, która wymaga
+równoległego przetwarzania, tworzone są dodatkowe wątki, które wykonywane są równolegle. Dopóki wszystkie
+wątki nie zakończą pracy i nie zostaną zniszczone, wątek główny nie może wznowić wykonywania
+sekwencyjnej części kodu. Etap ,,fork" polega na ustawieniu argumentów, które następnie otrzymuje każdy wątek.
+Etap ,,join" łączy wyniki po zakończeniu pracy wszystkich wątków równoległych. Etapy ,,fork" i ,,join"
+mogę wykonywane być dowolną ilość razy. \cite{parallel-design-patterns}.
+
+\subsubsection{Wzorzec Map-Reduce}
+Wzorzec Map-Reduce jest podobny do wzorca Fork-Join. Dane wejściowe są przetwarzane równolegle przez wiele wątków.
+Następnie wszystkie uzyskane wyniki są łączone, aż do momentu uzyskania jednego rozwiązania.
+W działaniu obydwa wzorce są prawie identycznie, jednak wywodzą się z różnych pomysłów.
+Idea mapowania pochodzi z technik stosowanych w funkcjonalnych językach programowania.
+Kilka mapowań może być połączonych w łańcuchy składające się na większe funkcje.
+Etapy ,,map" i ,,reduce" są od siebie bardziej niezależne niż etapy ,,fork" i ,,join".
+Mapowanie może występować bez redukcji, a redukcja bez mapowania \cite{parallel-design-patterns}.
+
+\subsubsection{Wzorzec Work Pool}
+Wzorzec puli zadań (Work Pool) wykorzystywany jest w algorytmach, w których zadania generowane są dynamicznie
+lub gdy istotnie różnią się złożonością. Zadania przechowywane są w strukturze danych, która dostępna
+jest w pamięci współdzielonej. Najczęściej wykorzystywane struktury to lista, kolejka priorytetowe
+czy tablica z haszowaniem. W momencie, gdy wątek zakończył obliczanie zadania, dostarczane jest mu
+kolejne zadanie przechowywane w strukturze \cite{wprowadzenie-do-obliczen-rownoleglych}.
+
+\subsubsection{Wzorzec Pipeline}
+Wzorzec Pipeline polega na potokowym przetwarzaniu danych. Nazywany jest również metodą producenta
+i konsumenta. Strumień danych przekazywany jest do kolejnych wątków, które modyfikują oryginalny strumień.
+Każdy z wątków wykonuje inny rodzaj obliczeń, które tworzą etapy potoku. Dane wyjściowe jednego etapu
+stają się danymi wejściowymi kolejnego etapu. Stosowanie wzorca jest efektywne, jeśli czasy realizacji
+poszczególnych etapów są podobne \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
 \newpage
 
