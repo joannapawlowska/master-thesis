@@ -32,6 +32,9 @@
 \usepackage{titlesec}
 \titlelabel{\thetitle.\quad}
 
+% center table caption
+\usepackage[justification=centering]{caption}
+
 % add theorem and definition
 \newtheorem{theorem}{Twierdzenie}%[section]
 \newtheorem{definition}{Definicja}%[subsection]
@@ -48,15 +51,12 @@
 \tableofcontents
 \newpage
 
-\section*{Wstęp}
-\newpage
-
 \section{Drzewa decyzyjne}
 Drzewo decyzyjne (ang. decision tree) to rodzaj algorytmu uczenia maszynowego
 wykorzystywanego do m.in. klasyfikacji danych. Na podstawie danych wejściowych budowany jest model,
 który pozwala na podejmowanie decyzji. Drzewo decyzyjne przedstawiane jest graficznie jako
-struktura zbudowana z węzłów, gałęzi i liści. Każdy węzeł reprezentuje kryterium, na podstawie
-którego algorytm podejmuje decyzję. Gałęzie symbolizują możliwe wybory. Ostateczne
+struktura zbudowana z węzłów, gałęzi i liści. Każdy węzeł reprezentuje test, na podstawie
+którego algorytm podejmuje decyzję. Gałęzie symbolizują możliwe wyniki testu. Ostateczne
 decyzje, które mogą zostać podjęte przez algorytm, reprezentowane są przez liście.
 
 Z matematycznego punktu widzenia drzewo decyzyjne to acykliczny graf skierowany.
@@ -65,28 +65,19 @@ nie mają żadnych potomków, określane są liśćmi, natomiast węzeł nieposi
 nazywany jest korzeniem \cite{algorytmy-do-konstruowania-drzew-decyzyjnych}.
 
 \subsection{Definicje}
-Zbiór treningowy składa się z rekordów (inaczej nazywanych
-krotkami, wierszami lub obiektami). Każdy rekord jest wektorem wartości atrybutów.
+Rekord (inaczej nazywany krotką, wierszem lub obiektem) jest wektorem wartości atrybutów.
 Zbiór $n$ atrybutów wejściowych oznaczany jest przez $A = \{a_1, ..., a_i, ..., a_n\}$.
 Atrybut $a_i$ przyjmuje wartości, których zbiór oznaczany jest przez
-$dom(a_i) = \{v_{i1}, v_{i2}, ..., v_{i|dom(a_i)|}\}$,
+$dom(a_i) = \{v_{i,1}, v_{i,2}, ..., v_{i,|dom(a_i)|}\}$,
 gdzie $|dom(a_i)|$ oznacza moc zbioru wartości atrybutu $a_i$. Atrybut wyjściowy nazywany
 jest decyzją i oznaczany jest przez $y$. Możliwe wartości decyzji $dom(y) = \{c_1, ..., c_{|dom(y)|}\}$
 nazywane są klasami decyzyjnymi. Przestrzeń rekordów wyznaczona jest jako iloczyn kartezjański
 wszystkich zbiorów atrybutów wejściowych $X = dom(a_1) \times ... \times dom(a_i) \times ... \times dom(a_n)$
 oraz zbioru atrybutów wyjściowych $dom(y)$ i oznaczana jest literą $U = X \times dom(y)$.
 
-\begin{definition}
-    Zbiór treningowy $S$ to zbiór $m$ par takich że:
-    \begin{center}
-    $S = (\langle x_1, y_1\rangle, ...,, \langle x_m, y_m\rangle)$,
-    \end{center}
-    gdzie:\\
-    $m \in \mathbb{N} $, $x_q \in X$, $y_q \in dom(y)$, $q \in \{1, ..., m\}$.
-\end{definition}
-
-Zbiór danych treningowych przedstawiany jest graficznie jako tabela i nazywany jest tabelą decyzyjną.
-Wiersze tabeli zbudowane są z rekordów. Kolumny grupują wartości wybranego atrybutu $a_i$.
+Zbiór treningowy $S$ to zbiór $m$ par takich, że $S = (\langle x_1, y_1\rangle, ..., \langle x_m, y_m\rangle)$,
+gdzie: $m \in \mathbb{N} $, $x_q \in X$, $y_q \in dom(y)$. Zbiór $S$ graficznie przedstawiany jest jako tabela
+i nazywany jest tabelą decyzyjną. Rekordy tworzą wiersze tabeli a kolumny grupują wartości atrybutów.
 
 \begin{table}[H]
     \centering
@@ -94,56 +85,77 @@ Wiersze tabeli zbudowane są z rekordów. Kolumny grupują wartości wybranego a
         \hline 
         a_1 & a_2 & a_3 & y \\
         \hline \hline
-        v_{11} & v_{21} & v_{31} & c_1 \\
-        v_{12} & v_{21} & v_{32} & c_3 \\
-        v_{11} & v_{21} & v_{31} & c_1 \\
-        v_{12} & v_{21} & v_{33} & c_3 \\
-        v_{12} & v_{22} & v_{34} & c_2 \\
+        v_{1,1} & v_{2,1} & v_{3,1} & c_1 \\
+        v_{1,2} & v_{2,1} & v_{3,2} & c_3 \\
+        v_{1,1} & v_{2,1} & v_{3,1} & c_1 \\
+        v_{1,2} & v_{2,1} & v_{3,3} & c_3 \\
+        v_{1,2} & v_{2,2} & v_{3,4} & c_2 \\
         \hline
     \end{array}$
-    \caption{\label{tab:decision-table}Tabela decyzyjna dla $n=3$, $m=5$, $|dom(y)|=3$, $|dom(a_1)|=2$, $|dom(a_2)|=2$, $|dom(a_3)|=4$}
+    \caption{\label{tab:decision-table}Tabela decyzyjna dla $m=5$, $|dom(y)|=3$,\\ $|dom(a_1)|=2$, $|dom(a_2)|=2$, $|dom(a_3)|=4$ i $n=3$.}
 \end{table}
 
 Selekcja $(\sigma)$ względem atrybutów przedstawiona jest za pomocą notacji używanej w algebrze.
 Przykładowo wybranie z Tabeli \ref{tab:decision-table} rekordów, które dla atrybutu $a_3$ przyjmują
-wartość $v_{31}$, opisywane jest wyrażaniem $\sigma_{a_3=v_{31}}S$.
+wartość~$v_{3,1}$, opisywane jest wyrażaniem $\sigma_{a_3=v_{3,1}}S$.
 
 Testem $t$ nazywany jest warunek dla podziału danych. W celu wyznaczenia najlepszego testu wykorzystywane
 są różne kryteria podziału.
 
 Na podstawie tabeli decyzyjnej przy użyciu testów na atrybutach konstruowane jest drzewo decyzyjne $DT$.
 Klasyfikator, który został stworzony ze zbioru treningowego $S$ oznaczany jest jako $DT(S)$. Korzystając z klasyfikatora
-$DT(S)$ możliwe jest wyznaczenie predykcji $DT(S)(x_q)$ dla wybranego elementu $x_q \in X$.
+$DT(S)$ możliwe jest wyznaczenie predykcji $DT(S)(x_q)$ dla wybranego elementu $x_q \in X$. Rozmiar drzewa decyzyjnego $DT(S)$ oraz dokładność predykcji $DT(S)(x_q)$
+w dużym stopniu zależy od wielkości zbioru treningowego $S$. Jeśli zbiór treningowy jest zbyt mały, to dokładność predykcji będzie niska.
 
-Błąd klasyfikacji dla atrybutów dyskretnych jest definiowany następująco (w przypadku atrybutów ciągłych znak sumy zastąpowany jest całką):
+Błąd klasyfikacji drzewa $DT(S)$ jest prawdopodobieństwem błędnej predykcji obiektu wybranego z zgodnie z rozkładem $D$ przestrzeni
+etykietowanych instancji. Błąd $\varepsilon$ zdefiniowany jest następująco (w przypadku atrybutów ciągłych znak sumy zastąpowany jest całką):
 
 \begin{equation}
     \varepsilon(DT(S), D) = \displaystyle\sum_{\langle x, y\rangle \in U} D(x, y) \cdot L(y, DT(S)(x)),
 \end{equation}
-gdzie:\\
-$D$ - nieznany, stały rozkład zmiennej $y$,\\
-$  L(y, DT(S)(x)) = \left\{
-    \begin{array}{ll}
-    1, & DT(S)(x) = y, \\
-    0, & DT(S)(x) \neq y.
-    \end{array} \right.
-$\\
+\begin{equation}
+    L(y, DT(S)(x)) = \left\{
+        \begin{array}{ll}
+            1, & DT(S)(x) = y, \\
+            0, & DT(S)(x) \neq y.
+        \end{array} \right.
+\end{equation}
 
-Rozmiar drzewa decyzyjnego zależy w dużym stopniu od wielkości zbioru treningowego.
-Najczęściej, jeśli zbiór treningowy jest zbyt mały, to dokładność predykcji będzie niska.
+Dokładność klasyfikacji drzewa decyzyjnego obliczna jest jako $1 - L(y, DT(S)(x))$.
+Rzeczywista wartość błędu klasyfikacji jest rzadko wyznaczana, ponieważ najczęściej rozkład $D$ nie jest znany.
+W zamian, jako oszacowanie błędu klasyfikacji, korzysta się z błędu
+obliczanego na zbiorze treningowym:
+
+\begin{equation}
+    \hat{\varepsilon}(DT(S), S) = \displaystyle\sum_{\langle x, y\rangle \in U} L(y, DT(S)(x)),
+\end{equation}
+
+Wykorzystywanie błędu wyliczanego na podstawie zbioru tr eningowego zazwyczaj daje jednak
+zbyt optymistycznie oszacowanie błedu $\varepsilon$. Z tego powodu zbiór danych dzieli się na zbiór
+treningowy oraz testowy. Zbiór treningowy jest większy i na jego podstawie buduje się klasyfikator.
+Zbiór testowy wykorzystywany jest do wyliczania $\hat{\varepsilon}$, który zwykle zapewnia
+lepsze oszacowanie błędu $\varepsilon$. 
 
 Nadmierne dopasowanie (ang. overfitting) to sytuacja, w której utworzony klasyfikator jest zbyt
 dobrze dopasowany do danych treningowych. Wystąpienie nadmiernego dopasowania sprawia, że
 klasyfikator dobrze sprawdza się dla danych treningowych, jednak zmniejsza się jego zdolność
-generalizacji. Oznacza to, że dla dowolnego elementu $x_q$ z przestrzeni $X$, nie jest możliwe przeprowadzenie
-poprawnych predykcji $DT(S)(x_q)$. W przypadku drzew decyzyjnych nadmierne dopasowanie
+generalizacji. Oznacza to, że dla elementu $x_q$ z przestrzeni $X$, mniejsze jest prawdopodobieństwo na otrzymanie
+poprawnej predykcji $DT(S)(x_q)$. W przypadku drzew decyzyjnych nadmierne dopasowanie
 występuje najczęściej, gdy drzewo ma zbyt wiele węzłów w stosunku do ilości dostępnych danych treningowych.
+
+W celu uniknięcia lub minimalizacji zajwiska nadmiernego dopasowania stosuje się technikę przycinania drzewa (ang. pruning).
+Polega ona na odpowiednim upraszczaniu drzewa -- zmniejszania jego rozmiaru.
+W drzewie decyzyjnym wycina się wybrane fragmenty (poddrzewa), których znaczenie jest niewielkie podczas przeprowadzania
+predykcji obiektów. Poddrzewo, które zostało wybrane do wycięcia, najczęściej zastępuje się liściem z etykietą klasy, która
+najczęściej występuje w wycinanym podzbiorze. Przekształcenia drzewa mogę pogorszyć dokładność klasyfikacji
+na zbiorze danych treningowych, jednak często skutkują dokładniejszymi predykcjami na obiektach z poza zbioru treningowego.
 
 \subsection{Schemat konstrukcji}
 Proces budowania drzewa oparty jest na wielokrotnym podziale danych. Pierwszy krok polega na przypisaniu
 korzeniowi wszystkich obiektów ze zbioru treningowego $S$. Następnie stosując wybrane kryterium podziału, które
 zależne jest od użytego algorytmu, wyznaczany jest atrybut wejściowy względem którego zostanie wykonany podział obiektów.
 Najlepszym podziałem jest ten, który najmniej różnicuje obiekty ze względu na ich klasę decycyjną.
+Gdy wybrany zostanie atrybut, wykonywany jest test, który przydziela obiekty z węzła do nowych węzłów potomnych.
 Po dopasowaniu obiektów do nowych węzłów proces podziału jest powtarzany według takiej samej zasady.
 Podział powtarzny jest tak długo, aż osiągnięte zostanie kryterium stopu.
 
@@ -165,7 +177,7 @@ Testy podziału dzieli się w zależności od rodzaju atrybutów:
         \item podział oparty na równości:
             $$  t(x) = \left\{
                 \begin{array}{ll}
-                1, & \textnormal{gdy } a_i(x) = v_{ij} \\
+                1, & \textnormal{gdy } a_i(x) = v_{i,j} \\
                 0, & \textnormal{w przeciwnym wypadku,}
                 \end{array} \right.
             $$
@@ -178,10 +190,12 @@ Testy podziału dzieli się w zależności od rodzaju atrybutów:
         \item podział oparty na nierównościach:
             $$  t(x) = \left\{
                 \begin{array}{ll}
-                1, & \textnormal{gdy } a_i(x) \leqslant v_{ij} \\
+                1, & \textnormal{gdy } a_i(x) \leqslant p \\
                 0, & \textnormal{w przeciwnym wypadku,}
                 \end{array} \right.
             $$
+            gdzie:\\
+            $p \in y$ (wartość progowa, cięcie),\\
 
         \item podział oparty na przedziałach:
             $$  t(x) = \left\{
@@ -212,7 +226,17 @@ Wyróżnia się następujące kryteria zatrzymania konstruowania drzewa decyzyjn
     \item brak możliwość odnalezienia testu, który pozwoliłby na dokonanie podziału.
 \end{itemize}
 
-\subsection{Algorytmy budowania drzew decyzyjnych}
+\subsubsection{Ocena jakości}
+Dwa składowe, które wpływają na ocenę jakości drzewa decyzyjnego $Q$, to dokładność klasyfikacji oraz wielkość drzewa decyzyjnego.
+
+\begin{equation}
+Q(DT, S) = \alpha \cdot  \hat{\varepsilon}(DT(S), S) + \beta \cdot h(DT),
+\end{equation}
+gdzie: \\
+$\alpha$, $\beta$ $\in \mathbb{R}$,\\
+$h$ -- wysokość drzewa decyzyjnego.
+
+\subsection{Algorytmy konstrukcji drzew decyzyjnych}
 
 \subsubsection{Algorytm ID3}
 Algorytm ID3 jest uważany za jeden z prostszych algorytmów konstrukcji drzew decyzyjnych.
@@ -271,34 +295,23 @@ również mogą przyjmować wartości ciągłe.
 
 \subsubsection{Algorytm CHAID}
 Algorytm CHAID (ang. Chi-squared Automatic Interaction Detectorest) to jeden z najstarszych algorytmów budowy drzew decycyjnych, który można wykorzystać 
-zarówno dla atrybutów ciągłych jak i dyskretnych. Drzewa stworzone przy wykorzystaniu algorytmu CHAID 
-są drzewami niebinarnymi.
+zarówno dla atrybutów ciągłych jak i dyskretnych. Drzewa stworzone przy wykorzystaniu algorytmu~CHAID są drzewami niebinarnymi.
 
 Dla każdego atrybutu $a_i$ znajdywana jest para wartości $\langle v_{ij}, v_{ik}\rangle$, która jest najmniej różna w odniesieniu do decyzji.
 Różnica jest mierzona poprzez wykonanie testu statystycznego. Wybór testu zależy od rodzaju atrybutu wyjściowego.
-Gdy jest on typu deykretnego kryterium podziału opiera się na teście $Chi$-kwadrat. Jeśli decyzja jest typu 
+Gdy jest on typu dyskretnego kryterium podziału opiera się na teście $Chi$-kwadrat. Jeśli decyzja jest typu 
 ciągłego wykorzystuje się test $F$.
 
 Dla każdej pary wartości sprawdzane jest, czy wynik testu statystycznego jest większy od progu scalania.
 Jeśli wynik testu jest większy to wartości są łączone, a następnie potwarza się proces wyboru pary.
-% Jeśli wynik jest pozytywna, łączy
-% wartości i wyszukuje dodatkową potencjalną parę do scalenia.
-
-
-Proces jest powtarzany do momentu, gdy nie zostaną znalezione żadne znaczące pary.
-% Do podziału węzła wykorzystywany jest atrybut wejściowy, 
-% Na koniec wybierany atrybut wejściowy 
-Następnie wybierany jest najlepszy atrybut wejściowy, który zostanie użyty do podziału bieżącego węzła, tak aby każdy węzeł potomny składał się z grupy jednorodnych
+Proces jest powtarzany do momentu, gdy nie będzie możliwe odnalezienie żadnej znaczącej pary.
+Następnie wybierany jest najlepszy atrybut wejściowy, który zostanie użyty do podziału bieżącego węzła,
+tak aby każdy węzeł potomny składał się z grupy jednorodnych
 wartości wybranego atrybutu \cite{data-mining-with-decision-trees}.
 
-Gdy atrybut wyjściowy jest typu deykretnego kryterium podziału opiera się na teście $Chi$-kwadrat. Jeśli decyzja jest typu 
-ciągłego wykorzystuje się test $F$.
+Algorytm CHAID obsługuje brakujące wartości, które traktuje jako jedna kategorie. W algorytmie nie stosuje się przycinania.
 
-Algorytm CHAID obsługuje brakujące wartości, które traktuje jako jedną kategorie. W algorytmie nie stosuje się przycinania.
-
-\subsubsection{Algorytm MARS}
 \newpage
-
 \section{Programowanie równoległe}
 Rozdział ma na celu uporządkowanie istotnych pojęć związanych z tematem programowania
 równoległego. Opisane zostały podstawowe zagadnienia, różnice między programowaniem współbieżnym
@@ -637,12 +650,15 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
             
             \hline
 
-        \caption{Zestawienie artykułów poruszających tematykę równoległości w algorytmach drzew decyzyjnych}
+        \caption{Zestawienie artykułów poruszających tematykę\\ równoległości w algorytmach drzew decyzyjnych}
         \label{table:articles-parallel-decision-tree}
  
         \end{longtable}
 
     \end{center}
+
+\listoftables
+\newpage
 
 \begin{thebibliography}{20}
 
