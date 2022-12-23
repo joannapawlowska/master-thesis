@@ -35,9 +35,9 @@
 % center table caption
 \usepackage[justification=centering]{caption}
 
-% add theorem and definition
-\newtheorem{theorem}{Twierdzenie}%[section]
-\newtheorem{definition}{Definicja}%[subsection]
+% allow adding images
+\usepackage{graphicx}
+\graphicspath{ {./img/} }
 
 \begin{document}
 
@@ -368,10 +368,17 @@ wymiennie z określeniem rdzeń logiczny. Wątek w znaczeniu rdzenia logicznego 
 \subsection{Rodzaje procesów}
 
 \subsubsection{Proces sekwencyjny}
-Proces sekwencyjny charakteryzuje się tym, że każda kolejna instrukcja wykonywana jest dopiero wtedy, gdy zakończy
+Proces sekwencyjny $P$ charakteryzuje się tym, że każda kolejna instrukcja $i$ wykonywana jest dopiero wtedy, gdy zakończy
 się wykonywanie poprzedniej. Kolejność wykonywania instrukcji jest jednoznacznie określona, dlatego proces sekwencyjny
 określany jest jako pojedynczy ciąg instrukcji \cite{wprowadzenie-do-obliczen-rownoleglych}. W przypadku procesu sekwencyjnego
 wątek nie jest częścią procesu, natomiast jest z nim utożsamiany \cite{skrypt}.
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=\textwidth]{sequential.pdf}
+    \caption{Proces sekwencyjny. Źródło: Opracowanie własne na podstawie \cite{wprowadzenie-do-obliczen-rownoleglych}}
+    \label{fig:sequential}
+\end{figure}
 
 \subsubsection{Proces współbieżny}
 Procesy sekwencyjne, które zachodzą na siebie w czasie, określane są jako proces współbieżny. Innymi słowami
@@ -380,18 +387,39 @@ Instrukcje należące do jednego wątku, wykonywane są, zanim ukończone zostan
 wszystkich instrukcji tworzących drugi, wcześniej uruchomiony wątek.
 
 Dane są dwa procesy sekwencyjne $P_1$ i $P_2$, instrukcje $i_{1,1}, i_{1,2} \in P_1$ oraz $i_{2,1}, i_{2,2} \in P_2$.
-Rysunek [1] przedstawia dwie z wielu możliwych realizacji procesu $P_1$ oraz $P_2$.
+Rysunek \ref{fig:concurrent} przedstawia jedną z wielu możliwych realizacji procesu $P_1$ oraz $P_2$.
 
-\subsubsection{Proces wykonywany metodą przeplotu}
-Proces wykonywany w przeplocie jest rodzajem procesu współbieżnego, w którym wątki uruchamiane są naprzemiennie. Gdy uruchomiony
-jest wątek $W_1$ to wątek $W_2$ jest wstrzymywany. Gdy przerywane jest działanie wątku $W_1$ to na pewien czas uruchamiany
-jest wątek $W_2$. Metoda przeplotu pozwala na zastosowanie współbieżności w procesorach jednordzeniowych.
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=\textwidth]{concurrent.pdf}
+    \caption{Proces współbieżny. Źródło: Opracowanie własne na podstawie \cite{wprowadzenie-do-obliczen-rownoleglych}}
+    \label{fig:concurrent}
+\end{figure}
+
+\subsubsection{Procesy wykonywane metodą przeplotu}
+Procesy wykonywane w przeplocie są procesami współbieżnymi, w których wątki uruchamiane są naprzemiennie. Gdy wykonywany
+jest proces $P_1$ to proces $P_2$ jest wstrzymywany. Gdy przerywane jest działanie procesu $P_1$ to przez pewien czas wykonywany
+jest proces $P_2$. Metoda przeplotu pozwala na zastosowanie współbieżności w procesorach jednordzeniowych.
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=\textwidth]{overlapping.pdf}
+    \caption{Procesy wykonywane metodą przeplotu.\\ Źródło: Opracowanie własne na podstawie \cite{wprowadzenie-do-obliczen-rownoleglych}}
+    \label{fig:overlapping}
+\end{figure}
 
 \subsubsection{Proces równoległy}
 Proces równoległy jest szczególnym rodzajem procesu współbieżnego, w którym wątki uruchamiane są jednocześnie. Równoległe uruchamianie
 wątków jest możliwe, tylko gdy wykorzystany jest specjalny sprzęt. Wątki rozdzielane mogą być między rdzenie procesora -- wtedy potrzeby
 jest komputer posiadający procesor kilkurdzeniowy. Inną możliwością jest zastosowanie architektury rozproszonej. Wówczas wątki dzielone są
 między zbiór komputerów, które połączone są ze sobą siecią. Proces równoległy nazywany jest wtedy rozproszonym.
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=\textwidth]{parallel.pdf}
+    \caption{Procesy równoległe. Źródło: Opracowanie własne na podstawie \cite{wprowadzenie-do-obliczen-rownoleglych}}
+    \label{fig:parallel}
+\end{figure}
 
 \subsection{Rodzaje dekompozycji problemów obliczeniowych}
 W celu równoległego wykonywania programu istotne jest zaprojektowanie podziału zadań obliczeniowych. Podział problemu na
@@ -441,6 +469,13 @@ otrzymane wyniki zarządcy, którego zadaniem jest scalić wszystkie zgromadzone
 Wzorzec nie sprawdza się w problemach o dużym rozdrobnieniu zadań. Zarządca nie jest w stanie odpowiednio szybko generować
 i przydzielać zadań, ponieważ wykonawcy bardzo szybko kończą realizację zadań \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.5\textwidth]{patterns-master-slave.pdf}
+    \caption{Wzorzec Master-Slave. Źródło: Opracowanie własne.}
+    \label{fig:master-slave}
+\end{figure}
+
 \subsubsection{Wzorzec Fork-Join}
 Wzorzec Fork-Join to jeden z najczęściej stosowanych wzorców. Wykonywanie programu rozpoczyna się
 w ramach jeden wątku głównego. W momencie, gdy w kodzie programu pojawia się instrukcja, która wymaga
@@ -450,6 +485,13 @@ sekwencyjnej części kodu. Etap ,,fork" polega na ustawieniu argumentów, któr
 Etap ,,join" łączy wyniki po zakończeniu pracy wszystkich wątków równoległych. Etapy ,,fork" i ,,join"
 mogę wykonywane być dowolną ilość razy. \cite{parallel-design-patterns}.
 
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.6\textwidth]{patterns-fork-join.pdf}
+    \caption{Wzorzec Fork-Join. Źródło: Opracowanie własne.}
+    \label{fig:fork-join}
+\end{figure}
+
 \subsubsection{Wzorzec Map-Reduce}
 Wzorzec Map-Reduce jest podobny do wzorca Fork-Join. Dane wejściowe są przetwarzane równolegle przez wiele wątków.
 Następnie wszystkie uzyskane wyniki są łączone, aż do momentu uzyskania jednego rozwiązania.
@@ -457,7 +499,14 @@ W działaniu obydwa wzorce są prawie identycznie, jednak wywodzą się z różn
 Idea mapowania pochodzi z technik stosowanych w funkcjonalnych językach programowania.
 Kilka mapowań może być połączonych w łańcuchy składające się na większe funkcje.
 Etapy ,,map" i ,,reduce" są od siebie bardziej niezależne niż etapy ,,fork" i ,,join".
-Mapowanie może występować bez redukcji, a redukcja bez mapowania \cite{parallel-design-patterns}.
+Mapowanie może występować bez redukcji, a redukcja bez mapowania~\cite{parallel-design-patterns}.
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.4\textwidth]{patterns-map-reduce.pdf}
+    \caption{Wzorzec Map-Reduce. Źródło: Opracowanie własne.}
+    \label{fig:map-reduce}
+\end{figure}
 
 \subsubsection{Wzorzec Work Pool}
 Wzorzec puli zadań (Work Pool) wykorzystywany jest w algorytmach, w których zadania generowane są dynamicznie
@@ -466,12 +515,26 @@ jest w pamięci współdzielonej. Najczęściej wykorzystywane struktury to list
 czy tablica z haszowaniem. W momencie, gdy wątek zakończył obliczanie zadania, dostarczane jest mu
 kolejne zadanie przechowywane w strukturze \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.55\textwidth]{patterns-work-pool.pdf}
+    \caption{Wzorzec Work Pool. Źródło: Opracowanie własne.}
+    \label{fig:work-pool}
+\end{figure}
+
 \subsubsection{Wzorzec Pipeline}
 Wzorzec Pipeline polega na potokowym przetwarzaniu danych. Nazywany jest również metodą producenta
 i konsumenta. Strumień danych przekazywany jest do kolejnych wątków, które modyfikują oryginalny strumień.
 Każdy z wątków wykonuje inny rodzaj obliczeń, które tworzą etapy potoku. Dane wyjściowe jednego etapu
 stają się danymi wejściowymi kolejnego etapu. Stosowanie wzorca jest efektywne, jeśli czasy realizacji
 poszczególnych etapów są podobne \cite{wprowadzenie-do-obliczen-rownoleglych}.
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.75\textwidth]{patterns-pipeline.pdf}
+    \caption{Wzorzec Pipeline. Źródło: Opracowanie własne.}
+    \label{fig:pipeline}
+\end{figure}
 
 \newpage
 
@@ -658,6 +721,7 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
     \end{center}
 
 \listoftables
+\listoffigures
 \newpage
 
 \begin{thebibliography}{20}
