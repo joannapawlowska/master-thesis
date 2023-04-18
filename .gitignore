@@ -23,5 +23,6 @@
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+*.lol
 
 .vscode/

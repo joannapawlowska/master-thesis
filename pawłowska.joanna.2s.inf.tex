@@ -42,6 +42,10 @@
 % allow text color
 \usepackage{xcolor}
 
+% allow code listings
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily}
+
 \begin{document}
 
 % set size of font in section and subsection
@@ -694,11 +698,65 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
         \end{longtable}
 
     \end{center}
+\newpage
+
+\section{Realizacja praktyczna}
+
+Rozdział poświęcony jest opisowi różnych implementacji algorytmu ID3. W pracy nacisk położony jest na analizę
+zastosowania równoległości w konstrukcjach drzew decyzyjnych, dlatego wybrano tylko jeden algorytm, który został
+zaimplementowany na trzy różne sposoby. Pierwszy sposób to klasyczny, sekwencyjny algorytm ID3. Drugi sposób
+wykorzystuje równoległość do obliczania zrównoważonego zysku informacji dla poszczególnych atrybutów.
+Trzeci sposób opiera się na zastosowaniu równoległości podczas tworzenia całych węzłów drzewa decyzyjnego.
+W rozdziale zawarty jest też opis programu stworzonego w języku Java, który umożliwia uruchamianie algorytmu we wszystkich trzech wersjach.
+
+
+\subsection{Implementacje algorytmu ID3}
+\subsubsection{Wykonanie sekwencyjne}
+\subsubsection{Równoległość na poziomie atrybutów}
+\subsubsection{Równoległość na poziomie węzłów}
+
+\subsection{Uruchamianie programu}
+
+Program został napisany w języku Java 11, dlatego aby go uruchomić, konieczna jest instalacja środowiska Java Runtime Environment (JRE)
+w wersji 11 lub wyższej. Wszystkie pliki z kodem źródłowym zostały skompilowane i spakowane jako wykonywalny plik archiwum Java JAR.
+
+Program został sparametryzowany, tak aby mógł został uruchomiony w każdym wariancie implementacji algorytmu ID3 oraz dla różnych zbiorów danych.
+Argumenty pozwalają na ustawianie następujących wartości:
+
+{\renewcommand\labelitemi{}
+\begin{itemize}
+    \item \verb|--data-set| -- ścieżka do pliku ze zbiorem danych,
+    \item \verb|--delimiter| -- separator wartości w zbiorze danych,
+    \item \verb|--output-file| -- ścieżka do pliku, gdzie zapisane zostaną dane o wydajności wykonania programu potrzebne do analizy,
+    \item \verb|--threads| -- ilość użytych wątków,
+    \item \verb|--test-ratio| -- udział procentowy danych losowo wybieranych do zbioru testowego,
+    \item \verb|--train-ratio| -- udział procentowy danych losowo wybieranych do zbioru treningowego,
+    \item \verb|--type| -- wersja algorytmu.
+\end{itemize}
+}
+
+Aby uruchomić program w wersji sekwencyjnej argument \verb|--type| należy ustawić na wartość \verb|SEQUENTIAL|.
+W celu zastosowania równoległości na poziomie atrybutów, użytkownik musi podać wartość \verb|PARALLEL_ATTRIBUTES|.
+Ustawienie argumentu na wartość \verb|PARALLEL_NODES| spowoduje uruchomienia algorytmu w wersji z równoległością węzłów.
+
+\begin{lstlisting}[caption=Przykładowe uruchomienie programu w wersji sekwencyjnej]
+java -jar concurrent-id3.jar
+    --data-set C:/resources/data.csv\
+    --delimiter ,\
+    --output-file C:/results.txt\
+    --threads 5\
+    --test-ratio 0.1\
+    --train-ratio 0.9\
+    --type SEQUENTIAL
+\end{lstlisting}
+
+\section{Analiza wyników}
 
 \newpage
 
 \listoftables
 \listoffigures
+\lstlistoflistings
 
 \newpage
 
