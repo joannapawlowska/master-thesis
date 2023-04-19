@@ -523,7 +523,7 @@ Mapowanie może występować bez redukcji, a redukcja bez mapowania~\cite{parall
     \label{fig:map-reduce}
 \end{figure}
 
-\subsubsection{Wzorzec Work Pool}
+\subsubsection{Wzorzec Work Pool}\label{work-pool}
 Wzorzec puli zadań (Work Pool) wykorzystywany jest w algorytmach, w których zadania generowane są dynamicznie
 lub gdy istotnie różnią się złożonością. Zadania przechowywane są w strukturze danych, która dostępna
 jest w pamięci współdzielonej. Najczęściej wykorzystywane struktury to lista, kolejka priorytetowe
@@ -707,12 +707,139 @@ zastosowania równoległości w konstrukcjach drzew decyzyjnych, dlatego wybrano
 zaimplementowany na trzy różne sposoby. Pierwszy sposób to klasyczny, sekwencyjny algorytm ID3. Drugi sposób
 wykorzystuje równoległość do obliczania zrównoważonego zysku informacji dla poszczególnych atrybutów.
 Trzeci sposób opiera się na zastosowaniu równoległości podczas tworzenia całych węzłów drzewa decyzyjnego.
-W rozdziale zawarty jest też opis programu stworzonego w języku Java, który umożliwia uruchamianie algorytmu we wszystkich trzech wersjach.
-
+W rozdziale została również przedstawiona instrukcja uruchomienia programu, który zawiera wszystkie trzy
+implementacje algorytmu.
 
 \subsection{Implementacje algorytmu ID3}
+
+Jako narzędzie został wybrany język programowania Java, dlatego implementacja opiera się na podejściu
+obiektowym. Pierwotnie program został zaimplementowany z wykorzystaniem uproszczeń jakie oferuje język Java 11
+jak np. strumienie (Java Stream API). Interfejs strumieni umożliwia tworzenie
+bardziej spójnego i czytelnego kodu. Korzystanie z udogodnień może wiązać się jednak ze skutkami ubocznymi.
+Obliczenia na dużych zbiorach danych znacznie obciążają program, co skutkuje zwiększeniem czasu
+potrzebnego na wykonanie. Z tego powodu wprowadzono zmiany w celu poprawy wydajności
+takie jak zastąpienie list przez tablice (tam, gdzie to możliwe), a także rezygnacja
+z użycia strumieni i zamiana ich na pętle for.
+
+Kod został podzielony na pakiety (package), które grupują klasy zgodnie z ich przeznaczeniem oraz funkcjonalnością. Zostało wydzielonych pięć pakietów:
+\verb|classifier|, \verb|concurrent|, \verb|table|, \verb|tree| oraz \verb|utils|. Poniżej omówione zostaną tylko wybrane klasy, które są kluczowe z
+punktu widzenia analizy równoległości oraz wydajności programu.
+
+\subsection{Wspólne fragmenty implementacji}
+
+Jedną z głównych klas jest klasa \verb|DecisionTable|. Klasa zawiera tablice \verb|String[][] table|, która przetrzymuje rekordy ze zbioru danych,
+na podstawie których utworzone zostaje drzewo decyzyjne. W celu odnalezienia atrybutu dzielącego niezbędne jest wykonanie wielu obliczeń, które wymagają 
+wstępnego uporządkowania danych np. odnalezienia indeksów w tabeli, w których występują takie same wartości dla wybranego atrybutu $a_i$. 
+Dostęp do części z uporządkowanych danych potrzebny jest kilkukrotnie w różnych fragmentach algorytmu. Z tego powodu zdecydowano o utworzeniu metadanych.
+Koncepcja metadanych dotyczących zbioru danych opiera się na jednokrotnym przetworzeniu całej tabeli z rekordami i zgromadzeniu wszystkich niezbędnych
+informacji, które w późniejszej fazie algorytmu będą koniecznie do ustalenia atrybutu dzielącego.
+
+Do metadanych które zawiera klasa \verb|DecisionTable| należą następujące pola: \verb|Map<String,| \verb|Integer> decisionsFrequencies| -- mapa gromadzi informacje o częstości wystąpień
+unikalnych wartości atrybutu decyzyjnego oraz \verb|AttributeValues[] attributesValues| -- tablica przetrzymująca instancje klasy \verb|AttributeValues|. Każdemu
+atrybutowi $a_i$ (oprócz ostatniego, atrybutu decyzyjnego) odpowiada jedna instancja w tablicy \verb|attributesValues| przetrzymywana na miejscu o $i-1$ indeksie, czyli
+takim samym jak indeks kolumny w tablicy \verb|table| zawierającej wszystkie wartości atrybutu $i$. Na przykładzie tabeli \ref{tab:decision-table} dla atrybutu $a_1$ zostałaby utworzona instancja klasy \verb|AttributeValue|, która umieszczona byłaby w tablicy
+\verb|attributesValues| na miejscu o indeksie $0$.
+
+Klasa \verb|AttributeValues| rozszerza klasę typu \verb|HashSet<AttributeValue>| a więc jest po prostu zbiorem instancji typu \verb|AttributeValue|.
+Zbiór zawiera tyle elementów, ile istnieje unikalnych wartości dla każdego atrybutu. Zadaniem klasy \verb|AttributeValue| jest przetrzymywanie informacji
+powiązanych z jedną wartością atrybutu.
+
+\begin{lstlisting}[language=java, caption=Skrócona implementacja klasy AttributeValue,frame=single,label={lst:attribute-value-class}]
+public class AttributeValue {
+
+    private final String value;
+    private final Set<Integer> indices;
+    private final Map<String, Integer> decisionsFrequencies;
+
+    public int getTotalFrequency() {...}
+
+    public Collection<Integer> getFrequencies() {...}
+
+    public AttributeValue(String value) {...}
+
+    public void addIndex(int index) {...}
+
+    public void addDecisionClass(String decisionClass) {...}
+}
+\end{lstlisting}
+
+Pole \verb|String value| przechowuje jedną, unikalną wartość atrybutu. Zbiór \verb|Set<Integer>| \verb|indices| zawiera indeksy, na których występują
+wartości równe polu \verb|value|. Z kolei mapa \verb|Map<String, Integer> decisionsFrequencies| jako klucz przyjmuje wartość atrybutu decyzyjnego,
+a jako wartość przechowuje częstość jego wystąpień, jednak tylko dla tych indeksów w tabeli \verb|table|, które zawierają się w zbiorze \verb|indices|.
+
+Listing \ref{lst:attribute-value-example} przedstawia jak prezentowała by się metadane dla atrybutu $a_1$ z tabeli \ref{tab:decision-table}.
+Atrybut $a_1$ posiada dwie unikalne wartości: $v_{1,1}$ oraz $v_{1,2}$. Skutkuje to stworzeniem dwóch instancji klasy \verb|AttributeValue|.
+
+\begin{lstlisting}[language=java, caption=Metadane na przykładzie atrybutu $a_1$ z tabeli \ref{tab:decision-table},frame=single,label={lst:attribute-value-example}]
+System.out.println(attributesValues[0].toString());
+# output:
+# [ AttributeValue( value=v11,
+#                   indices=[0, 2],
+#                   decisionFrequencies={c1=2} ),
+#   AttributeValue( value=v12,
+#                   indices=[1, 3, 4],
+#                   decisionFrequencies={c3=2, c2=1} ) ]
+\end{lstlisting}
+    
+Tak przygotowane metadane zapewniają dostęp do wszystkich potrzebnych wartości, aby obliczyć zrównoważony zysk informacji dla każdego
+atrybutu znajdującego się w tabeli \verb|table|.
+
+W pakiecie \verb|tree| znajduje się kolejna istotna klasa \verb|Node|. Klasa odwzorowuje węzeł drzewa decyzyjnego.
+Wartość etykiety węzła \verb|String label| wskazuje numer atrybutu wybranego jako atrybut dzielący w węźle. Jeśli węzeł jest liściem, wówczas etykieta wskazuje na klasę decyzyjną.
+Etykieta gałęzi \verb|String branchLabel| wskazuje na gałąź łączącą węzeł ze swoim rodzicem. Przechowuje więc ona jedną z wartości atrybutu dzielącego wybranego w węźle rodzica.
+Jeśli węzeł jest korzeniem, wówczas etykieta gałęzi równa się \verb|null|. Lista węzłów \verb|List<Node> children| przechowuje listę potomków węzła. Dzięki niej, możliwe jest poruszanie się
+po drzewie od korzenia w kierunku liści. Ostatnim polem zdefiniowanym w węźle jest tabela \verb|DecisionTable decisionTable|. Podczas tworzenia węzła korzenia tabela decyzyjna przechowuje
+wszystkie rekordy, na podstawie których tworzone jest drzewo decyzyjne. Każdy podział drzewa skutkuje formowaniem się mniejszych tabel, które zawierają tylko część rekordów. W konsekwencji
+każdemu węzłowi przypisana jest tabela zawierająca taki podzbiór rekordów, których wartość dla atrybutu wybranego jako atrybut dzielący węzła rodzica jest równa etykiecie gałęzi, łączącej
+potomka z rodzicem.
+
 \subsubsection{Wykonanie sekwencyjne}
+
+Przy tworzeniu równoległej wersji algorytmy zastosowano podejście, które umożliwia dziedziczenie klas. Taka technika umożliwia wykorzystanie
+sekwencyjnej implementacji jako klasy bazowej. Klasy wykorzystujące równoległość mogą dziedziczyć te fragmenty algorytmu sekwencyjnego,
+które nie wymagają zmian.
+
+Ujednoliconym warunkiem stopu tworzenia drzewa decyzyjnego jest sytuacja, gdy maksymalna wartość zrównoważonego
+zysku informacji w węźle jest równa 0. Listing \ref{lst:sequential-tree} przedstawia rekurencyjną metodę, która
+umożliwia rozbudowę drzewa decyzyjnego do momentu, gdy warunek stopu zostanie spełniony.
+
+\begin{lstlisting}[language=java, caption=Rekurencyjne tworzenie drzewa decyzyjnego,frame=single,label={lst:sequential-tree}]
+protected static void createTree(Node node) {
+    DecisionTable table = node.getDecisionTable();
+
+    if (table.getMaxGainRatio() == 0) {
+        node.setLabel(table.getDecisionClass());
+            return;
+    }
+
+    node.setLabel(table.getAttributeToDivideBy());
+
+    for (AttributeValue metadata :
+                        table.getValuesOfDividingAttribute()) {
+        Node child = new Node(
+            metadata.getValue(),
+            table.getSubTable(metadata.getIndices())
+        );
+        node.addChild(child);
+        createTree(child);
+    }
+}
+\end{lstlisting}
+
 \subsubsection{Równoległość na poziomie atrybutów}
+
+Pierwsza implementacja z zastosowaniem równoległości polega na podziale zadań znajdowania zrównoważonego przyrostu
+informacji pomiędzy oddzielne wątki. Jest to podejście które wykorzystuje równoległość danych. Dane dzielone są pionowo (wertykalnie).
+Na potrzeby tej implementacji została stworzona klasa \verb|ParallelDecisionTable|, która rozszerza klasę \verb|DecisionTable|.
+Została w niej nadpisana tylko jedna metoda, której celem jest odnalezienie atrybutu dzielącego węzeł -- \verb|public int findAttributeToDivideBy()|.
+W metodzie tworzona jest lista zadań \verb|List<ComputeGainRatioTask> taskList|. Zadanie obliczenia zysku informacji dla jednego atrybutu zdefiniowane jest w
+klasie \verb|ComputeGainRatioTask|, która implementuje interfejs \verb|Callable|. Klasa \verb|ExecutorService| udostępnia metodę, która jako parametr
+przyjmuje listę zadań, które mają zostać wykonane równolegle. Podczas tworzenia instancji klasy \verb|ExecutorService| należy również zdefiniować
+ilość wątków, które mają wykonać listę zadań.
+Implementacja opiera się na wzorcu Work Pool \ref{work-pool}. Zadania z listy przekazywane są wolnym wątkom do momentu, aż wszystkie zadania zostaną rozdzielone
+i wykonane. Istotny jest fakt, iż dostęp do rezultatów jest dostępny dopiero wtedy, gdy wszystkie wątki zakończą prace. W momencie, gdy
+wszystkie wyniki zgromadzone zostaną w formie listy, wybierany jest ten atrybut, którego zrównoważony zysk informacji jest największy.
+
 \subsubsection{Równoległość na poziomie węzłów}
 
 \subsection{Uruchamianie programu}
@@ -730,24 +857,23 @@ Argumenty pozwalają na ustawianie następujących wartości:
     \item \verb|--output-file| -- ścieżka do pliku, gdzie zapisane zostaną dane o wydajności wykonania programu potrzebne do analizy,
     \item \verb|--threads| -- ilość użytych wątków,
     \item \verb|--test-ratio| -- udział procentowy danych losowo wybieranych do zbioru testowego,
-    \item \verb|--train-ratio| -- udział procentowy danych losowo wybieranych do zbioru treningowego,
+    \item \verb|--train-ratio| -- udział procentowy danych losowo wybieranych do zbioru treningowego, wartość wraz z \verb|--test-ratio| muszą być równe 1,
     \item \verb|--type| -- wersja algorytmu.
-\end{itemize}
-}
+\end{itemize}}
 
 Aby uruchomić program w wersji sekwencyjnej argument \verb|--type| należy ustawić na wartość \verb|SEQUENTIAL|.
 W celu zastosowania równoległości na poziomie atrybutów, użytkownik musi podać wartość \verb|PARALLEL_ATTRIBUTES|.
 Ustawienie argumentu na wartość \verb|PARALLEL_NODES| spowoduje uruchomienia algorytmu w wersji z równoległością węzłów.
 
-\begin{lstlisting}[caption=Przykładowe uruchomienie programu w wersji sekwencyjnej]
-java -jar concurrent-id3.jar
-    --data-set C:/resources/data.csv\
-    --delimiter ,\
-    --output-file C:/results.txt\
-    --threads 5\
-    --test-ratio 0.1\
-    --train-ratio 0.9\
-    --type SEQUENTIAL
+\begin{lstlisting}[caption=Przykładowe uruchomienie programu w wersji sekwencyjnej,frame=single]
+    java -jar concurrent-id3.jar
+        --data-set C:/resources/data.csv\
+        --delimiter ,\
+        --output-file C:/results.txt\
+        --threads 5\
+        --test-ratio 0.1\
+        --train-ratio 0.9\
+        --type SEQUENTIAL
 \end{lstlisting}
 
 \section{Analiza wyników}
