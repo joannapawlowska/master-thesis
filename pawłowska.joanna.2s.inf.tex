@@ -713,13 +713,12 @@ implementacje algorytmu.
 \subsection{Implementacja}
 
 Jako narzędzie został wybrany język programowania Java, dlatego implementacja opiera się na podejściu
-obiektowym. Pierwotnie program został zaimplementowany z wykorzystaniem uproszczeń jakie oferuje język Java 11
-jak np. strumienie (Java Stream API). Interfejs strumieni umożliwia tworzenie
-bardziej spójnego i czytelnego kodu. Korzystanie z udogodnień może wiązać się jednak ze skutkami ubocznymi.
-Obliczenia na dużych zbiorach danych znacznie obciążają program, co skutkuje zwiększeniem czasu
-potrzebnego na wykonanie. Z tego powodu wprowadzono zmiany w celu poprawy wydajności
-takie jak zastąpienie list przez tablice (tam, gdzie to możliwe), a także rezygnacja
-z użycia strumieni i zamiana ich na pętle for.
+obiektowym. Język Java oferuje wiele możliwości programowania współbieżnego i równoległego. W terminologii Java
+pojęcie wątek nabiera kolejnego znaczenia. Programista ma możliwość tworzenia wielu wątków, która zarządzane są
+przez JVM (Java Virtual Machine) w celu równoległego wykonywania kodu. Inne dostępne mechanizmy to synchronizacja,
+blokady (locks), semafory, interfejsy Callable oraz Future, zmienne typu \textit{atomic} czy framework Executor.
+Podczas fazy projektowania została przeprowadzona analiza, które z mechanizmów będą konieczne i pomocne
+w implementacji. Ostatecznie w programie wykorzystane zostały głownie interfejsy Callable, Future oraz framework Executor.
 
 Kod został podzielony na pakiety (package), które grupują klasy zgodnie z ich przeznaczeniem oraz funkcjonalnością. Zostało wydzielonych pięć pakietów:
 \verb|classifier|, \verb|concurrent|, \verb|table|, \verb|tree| oraz \verb|utils|. Poniżej omówione zostaną tylko wybrane klasy, które są kluczowe z
@@ -921,6 +920,14 @@ Ustawienie argumentu na wartość \verb|PARALLEL_NODES| spowoduje uruchomienia a
 
 \newpage
 \section{Analiza wyników}
+
+Pierwotnie program został zaimplementowany z wykorzystaniem uproszczeń jakie oferuje język Java 11
+jak np. strumienie (Java Stream API). Interfejs strumieni umożliwia tworzenie
+bardziej spójnego i czytelnego kodu. Korzystanie z udogodnień może wiązać się jednak ze skutkami ubocznymi.
+Obliczenia na dużych zbiorach danych znacznie obciążają program, co skutkuje zwiększeniem czasu
+potrzebnego na wykonanie. Z tego powodu wprowadzono zmiany w celu poprawy wydajności
+takie jak zastąpienie list przez tablice (tam, gdzie to możliwe), a także rezygnacja
+z użycia strumieni i zamiana ich na pętle for.
 
 \newpage
 
