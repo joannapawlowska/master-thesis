@@ -705,12 +705,12 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
 Rozdział poświęcony jest opisowi różnych implementacji algorytmu ID3. W pracy nacisk położony jest na analizę
 zastosowania równoległości w konstrukcjach drzew decyzyjnych, dlatego wybrano tylko jeden algorytm, który został
 zaimplementowany na trzy różne sposoby. Pierwszy sposób to klasyczny, sekwencyjny algorytm ID3. Drugi sposób
-wykorzystuje równoległość do obliczania zrównoważonego zysku informacji dla poszczególnych atrybutów.
+wykorzystuje równoległość do obliczania zrównoważonego przyrostu informacji dla poszczególnych atrybutów.
 Trzeci sposób opiera się na zastosowaniu równoległości podczas tworzenia całych węzłów drzewa decyzyjnego.
 W rozdziale została również przedstawiona instrukcja uruchomienia programu, który zawiera wszystkie trzy
 implementacje algorytmu.
 
-\subsection{Implementacje algorytmu ID3}
+\subsection{Implementacja}
 
 Jako narzędzie został wybrany język programowania Java, dlatego implementacja opiera się na podejściu
 obiektowym. Pierwotnie program został zaimplementowany z wykorzystaniem uproszczeń jakie oferuje język Java 11
@@ -725,7 +725,7 @@ Kod został podzielony na pakiety (package), które grupują klasy zgodnie z ich
 \verb|classifier|, \verb|concurrent|, \verb|table|, \verb|tree| oraz \verb|utils|. Poniżej omówione zostaną tylko wybrane klasy, które są kluczowe z
 punktu widzenia analizy równoległości oraz wydajności programu.
 
-\subsection{Wspólne fragmenty implementacji}
+\subsubsection{Współdzielone fragmenty kodu}
 
 Jedną z głównych klas jest klasa \verb|DecisionTable|. Klasa zawiera tablice \verb|String[][] table|, która przetrzymuje rekordy ze zbioru danych,
 na podstawie których utworzone zostaje drzewo decyzyjne. W celu odnalezienia atrybutu dzielącego niezbędne jest wykonanie wielu obliczeń, które wymagają 
@@ -762,6 +762,7 @@ public class AttributeValue {
     public void addDecisionClass(String decisionClass) {...}
 }
 \end{lstlisting}
+\newpage
 
 Pole \verb|String value| przechowuje jedną, unikalną wartość atrybutu. Zbiór \verb|Set<Integer>| \verb|indices| zawiera indeksy, na których występują
 wartości równe polu \verb|value|. Z kolei mapa \verb|Map<String, Integer> decisionsFrequencies| jako klucz przyjmuje wartość atrybutu decyzyjnego,
@@ -795,13 +796,16 @@ potomka z rodzicem.
 
 \subsubsection{Wykonanie sekwencyjne}
 
-Przy tworzeniu równoległej wersji algorytmy zastosowano podejście, które umożliwia dziedziczenie klas. Taka technika umożliwia wykorzystanie
+Przy tworzeniu równoległej wersji algorytmu zastosowano podejście, które umożliwia dziedziczenie klas. Taka technika umożliwia wykorzystanie
 sekwencyjnej implementacji jako klasy bazowej. Klasy wykorzystujące równoległość mogą dziedziczyć te fragmenty algorytmu sekwencyjnego,
 które nie wymagają zmian.
 
 Ujednoliconym warunkiem stopu tworzenia drzewa decyzyjnego jest sytuacja, gdy maksymalna wartość zrównoważonego
-zysku informacji w węźle jest równa 0. Listing \ref{lst:sequential-tree} przedstawia rekurencyjną metodę, która
-umożliwia rozbudowę drzewa decyzyjnego do momentu, gdy warunek stopu zostanie spełniony.
+przyrostu informacji w węźle jest równa 0. Listing \ref{lst:sequential-tree} przedstawia metodę, która
+umożliwia rozbudowę drzewa decyzyjnego do momentu, gdy warunek stopu zostanie spełniony. Na listingu widać, że budowa
+drzewa odbywa się przy użyciu rekurencji \verb|createTree(child)|.
+Obliczenia dla każdego atrybutu (od atrybutu o najmniejszym indeksie do atrybutu o najwyższym indeksie) jak i tworzenie węzłów potomków
+(rozbudowując drzewo od lewej strony do prawej) wykonywane są sekwencyjnie. 
 
 \begin{lstlisting}[language=java, caption=Rekurencyjne tworzenie drzewa decyzyjnego,frame=single,label={lst:sequential-tree}]
 protected static void createTree(Node node) {
@@ -828,27 +832,66 @@ protected static void createTree(Node node) {
 
 \subsubsection{Równoległość na poziomie atrybutów}
 
-Pierwsza implementacja z zastosowaniem równoległości polega na podziale zadań znajdowania zrównoważonego przyrostu
-informacji pomiędzy oddzielne wątki. Jest to podejście które wykorzystuje równoległość danych. Dane dzielone są pionowo (wertykalnie).
-Na potrzeby tej implementacji została stworzona klasa \verb|ParallelDecisionTable|, która rozszerza klasę \verb|DecisionTable|.
-Została w niej nadpisana tylko jedna metoda, której celem jest odnalezienie atrybutu dzielącego węzeł -- \verb|public int findAttributeToDivideBy()|.
-W metodzie tworzona jest lista zadań \verb|List<ComputeGainRatioTask> taskList|. Zadanie obliczenia zysku informacji dla jednego atrybutu zdefiniowane jest w
-klasie \verb|ComputeGainRatioTask|, która implementuje interfejs \verb|Callable|. Klasa \verb|ExecutorService| udostępnia metodę, która jako parametr
-przyjmuje listę zadań, które mają zostać wykonane równolegle. Podczas tworzenia instancji klasy \verb|ExecutorService| należy również zdefiniować
-ilość wątków, które mają wykonać listę zadań.
-Implementacja opiera się na wzorcu Work Pool \ref{work-pool}. Zadania z listy przekazywane są wolnym wątkom do momentu, aż wszystkie zadania zostaną rozdzielone
-i wykonane. Istotny jest fakt, iż dostęp do rezultatów jest dostępny dopiero wtedy, gdy wszystkie wątki zakończą prace. W momencie, gdy
-wszystkie wyniki zgromadzone zostaną w formie listy, wybierany jest ten atrybut, którego zrównoważony zysk informacji jest największy.
+Pierwsza równoległa implementacja polega na podziale zadań obliczenia zrównoważonego przyrostu informacji pomiędzy oddzielne wątki.
+Jest to podejście które wykorzystuje równoległość danych. Dane dzielone są pionowo (wertykalnie).
+
+Klasa \verb|ParallelDecisionTable| rozszerza klasę bazową \verb|DecisionTable|.
+Została w niej nadpisana tylko jedna metoda \verb|int findAttributeToDivideBy()|, której celem jest odnalezienie atrybutu dzielącego.
+W metodzie tworzona jest lista zadań obliczenia zrównoważonego przyrostu informacji \verb|List<ComputeGainRatioTask> taskList|.
+Zadanie tworzone jest osobno dla każdego atrybutu i zdefiniowane jest w klasie \verb|ComputeGainRatioTask|, która implementuje interfejs \verb|Callable|.
+Klasa w konstruktorze przyjmuje argumenty zawierające dane niezbędne do wykonania obliczeń:
+indeks atrybutu, dla którego definiowane jest zadanie, lista częstości występowań
+wartości klas decyzyjnych w tabeli decyzyjnej, ilość rekordów w tabeli decyzyjnej oraz zbiór obiektów typu \verb|AttributeValue|
+tworzących metadane o przetwarzanym atrybucie. W klasie zdefiniowane są 4 prywatne metody, które służą obliczeniu wartości informacji \verb|double getInfo()|,
+przyrostu informacji \verb|double getGain()|, wyznaczeniu informacji o podziale \verb|double getSplitInfo()|
+oraz obliczeniu zrównoważonego przyrostu informacji \verb|getGainRatio()|. Jedna metoda publiczna \verb|GainRatioResult call()|, której
+implementacja wymuszona jest przez interfejs \verb|Callable|, umożliwia start wykonywania zadania przez wątek, któremu zostało ono przydzielone.
+
+Klasa \verb|ExecutorService| udostępnia metodę przyjmującą jako parametr listę zadań, które mają zostać wykonane równolegle. Podczas tworzenia instancji
+klasy \verb|ExecutorService| należy zdefiniować ilość wątków, które będą przetwarzać listę zadań. Implementacja opiera się na wzorcu Work Pool \ref{work-pool}.
+Zadania z listy przekazywane są wolnym wątkom do momentu, aż wszystkie zadania zostaną rozdzielone i wykonane. Istotny jest fakt, iż dostęp do rezultatów
+jest dostępny dopiero wtedy, gdy wszystkie wątki zakończą prace. Taki mechanizm nazywany jest blokującym. W momencie, gdy wszystkie wyniki zgromadzone
+zostaną w formie listy, wybierany jest ten atrybut, dla którego obliczony zrównoważony przyrost informacji jest największy. W ten sposób odnajdywany jest atrybut dzielący.
 
 \subsubsection{Równoległość na poziomie węzłów}
+
+Różnica pomiędzy pierwszą a drugą równoległą implementacją, polega na zmianie definicji zadania równoległego. W tym przypadku, zadanie polega na stworzeniu jednego
+węzła. Zadanie zdefiniowane jest w klasie \verb|CreateNodeTask|, która również implementuje interface \verb|Callable|. Klasa zawiera tylko jedną metodę
+\verb|Node call()|, jednak większość równoległej implementacji zawiera się w klasie \verb|ParallelNodesDecisionTree|, która rozszerza klasę \verb|DecisionTree|.
+W klasie tej została nadpisana jedna metoda \verb|createTree(Node node)|. Warunek zatrzymania tworzenia drzewa decyzyjnego pozostaje bez zmian. Zmiany widoczne są
+podczas tworzenia węzłów potomnych.
+
+List zawiera zadania utworzenia każdego z węzłów potomnych (bez kolejnego pokolenia potomków). Lista zadań tworzona jest oddzielnie
+dla każdego węzła rodzicielskiego.
+
+\begin{lstlisting}[language=java, caption=Lista zadań równoległego tworzenia węzłów,frame=single,label={lst:create-node-parallel}]
+List<Callable<Node>> taskList = new ArrayList<>();
+
+for (AttributeValue attributeValue :
+                        table.getValuesOfDividingAttribute()) {
+    CreateNodeTask createNodeTask = CreateNodeTask.builder()
+            .decisionTable(table)
+            .attributeValue(attributeValue)
+            .build();
+
+    taskList.add(createNodeTask);
+}
+\end{lstlisting}
+
+Podobnie jak przy równoległym przetwarzaniu na poziomie atrybutów, został wykorzystany wzorzec Work-Pool.
+Mechanizm blokujący ponownie wstrzymuje przejście do kolejnej fazy algorytmu do momentu, gdy wszyscy potomkowie rodzica nie zostaną stworzeni
+i dodani do listy \verb|childrens|. Po zakończeniu działania współbieżnej części kodu jako pierwszy zostaje wybrany potomek, który znajduje się
+na pierwszym miejscu listy \verb|childerns|. Na tym etapie rozwój drzewa przenoszony jest na niższy poziom. Potomek staje się rodzicem
+i procedura tworzenia listy zadań powtarza się. Drzewo rozwijane jest w lewo tak długo, aż któryś z węzłów potomnych stanie się liściem.
+Wówczas algorytm rekurencyjnie powraca do pominiętych węzłów w celu stworzenia ich potomków.
 
 \subsection{Uruchamianie programu}
 
 Program został napisany w języku Java 11, dlatego aby go uruchomić, konieczna jest instalacja środowiska Java Runtime Environment (JRE)
 w wersji 11 lub wyższej. Wszystkie pliki z kodem źródłowym zostały skompilowane i spakowane jako wykonywalny plik archiwum Java JAR.
 
-Program został sparametryzowany, tak aby mógł został uruchomiony w każdym wariancie implementacji algorytmu ID3 oraz dla różnych zbiorów danych.
-Argumenty pozwalają na ustawianie następujących wartości:
+Program został sparametryzowany, tak aby mógł został uruchomiony w każdym wariancie implementacji algorytmu ID3. Niezbędne jest również
+podanie ścieżki do pliku ze zbiorem danych. Argumenty pozwalają na ustawianie następujących wartości:
 
 {\renewcommand\labelitemi{}
 \begin{itemize}
@@ -865,17 +908,18 @@ Aby uruchomić program w wersji sekwencyjnej argument \verb|--type| należy usta
 W celu zastosowania równoległości na poziomie atrybutów, użytkownik musi podać wartość \verb|PARALLEL_ATTRIBUTES|.
 Ustawienie argumentu na wartość \verb|PARALLEL_NODES| spowoduje uruchomienia algorytmu w wersji z równoległością węzłów.
 
-\begin{lstlisting}[caption=Przykładowe uruchomienie programu w wersji sekwencyjnej,frame=single]
+\begin{lstlisting}[caption=Przykładowe uruchomienie programu,frame=single]
     java -jar concurrent-id3.jar
-        --data-set C:/resources/data.csv\
+        --data-set ./resources/data.csv\
         --delimiter ,\
-        --output-file C:/results.txt\
+        --output-file ./results.txt\
         --threads 5\
         --test-ratio 0.1\
         --train-ratio 0.9\
-        --type SEQUENTIAL
+        --type PARALLEL_NODES
 \end{lstlisting}
 
+\newpage
 \section{Analiza wyników}
 
 \newpage
