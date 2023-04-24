@@ -39,6 +39,7 @@
 \usepackage{graphicx}
 \graphicspath{ {./img/} }
 
+
 % allow text color
 \usepackage{xcolor}
 
@@ -54,8 +55,27 @@
 \titleformat*{\section}{\Large\bfseries}
 \titleformat*{\subsection}{\large\bfseries}
 
+\begin{figure*}[p!]
+    \centering
+    \thispagestyle{empty}
+	\includegraphics[width=1.2\textwidth,height=\textheight,keepaspectratio]{tytulowa.pdf}
+\end{figure*}
+
+\begin{figure*}[p!]
+    \centering
+	\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{oswiadczenie.pdf}
+\end{figure*}
+
+\begin{figure*}[p!]
+    \centering
+	\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{plagiat.pdf}
+\end{figure*}
+
 % add table of contents
 \tableofcontents
+\newpage
+
+\section{Wstęp}
 \newpage
 
 \section{Drzewa decyzyjne}
@@ -724,7 +744,7 @@ Kod został podzielony na pakiety (package), które grupują klasy zgodnie z ich
 \verb|classifier|, \verb|concurrent|, \verb|table|, \verb|tree| oraz \verb|utils|. Poniżej omówione zostaną tylko wybrane klasy, które są kluczowe z
 punktu widzenia analizy równoległości oraz wydajności programu.
 
-\subsubsection{Współdzielone fragmenty kodu}
+\subsubsection{Współdzielone fragmenty kodu}\label{common-code-blocks}
 
 Jedną z głównych klas jest klasa \verb|DecisionTable|. Klasa zawiera tablice \verb|String[][] table|, która przetrzymuje rekordy ze zbioru danych,
 na podstawie których utworzone zostaje drzewo decyzyjne. W celu odnalezienia atrybutu dzielącego niezbędne jest wykonanie wielu obliczeń, które wymagają 
@@ -921,6 +941,112 @@ Ustawienie argumentu na wartość \verb|PARALLEL_NODES| spowoduje uruchomienia a
 \newpage
 \section{Analiza wyników}
 
+Rozdział piąty zawiera opis analizy implementacji pod kątem wydajności. Poruszone zostały w nim
+tematy związane z czasem trwania poszczególnych wykonań algorytmu, zużyciem pamięci RAM i pamięci
+przydzielonej procesowi oraz ilością wykorzystanych wątków. Analiza oparta jest na danych zgromadzonych
+dzięki przeprowadzonym testom algorytmu. Wyniki testów zostały przetworzone oraz przedstawione w formie
+wykresów stworzonych przy użyciu języka \textit{Python} oraz biblioteki \textit{Plotnine} umożliwiającą
+korzystanie z pakietu \textit{ggplot2}.
+
+\subsection{Założenia}
+Głównym celem zastosowania wielowątkowości jest tworzenie mechanizmów, które przyspieszają
+działanie programów lub zwiększają ich wydajność (np. poprzez obsługę wielu żądań w tym samym momencie).
+W przypadku implementacji algorytmu ID3 celem zastosowania przetwarzania wielowątkowego było
+skrócenie czasu budowy drzewa decyzyjnego.
+
+W celu sprawdzenia poprawności działania kluczowych elementów implementacji, w programie zawarte
+zostały testy jednostkowe. Klasy zawierające logikę, która wpływa na strukturę drzewa, zostały przetestowane
+na danych, dla których znana była poprawna forma kształtu drzewa. Dzięki przetestowaniu algorytmu
+pod względem poprawności działania, podczas analizy kluczowej dla tematu pracy, założono,
+że algorytmy działają poprawnie a cała uwaga została skupiona tylko na wydajności programu.
+
+\subsection{Środowisko testowe}
+Większość testów zostało przeprowadzonych na maszynie z procesorem Intel coś tam który posiada 4 rdzeniach
+oraz 16GB pamięci RAM. Dodatkowo jednokrotnie użyto maszyny z procesorem AMD Ryzen 5 2500U i 8 GB pamięci RAM.
+
+Podczas testowania istotne było zachowania podobnych warunków. Nie jest możliwe
+całkowite wyłączenie wszystkich innych aplikacji, ponieważ o działaniu wielu z nich decyduje
+system operacyjny. Jednak w celu minimalizacji obciążenia procesora innymi procesami
+wszystkie możliwe do zatrzymania programy zostały wyłączone.
+
+Dodatkową techniką, która miała na celu zmniejszenie wpływu zewnętrznych czynników na rezultaty testów
+było zastosowanie uśredniania wyników. Ręczne uruchamianie programu z wiersza poleceń jest mało optymalne,
+dlatego cały proces zbierania danych testowych został zautomatyzowany. W celu wielokrotnego uruchamiania programu
+dla różnych parametrów zostały utworzone skrypty w języku \textit{Bash}. Dla każdej konfiguracji
+parametrów program został uruchamiany kilkukrotnie, tak aby następnie wyniki mogły zostać uśrednione
+a przez to stały się bardziej miarodajne. 
+
+\subsection{Rozmiar danych}
+Pierwszym czynnikiem, który ma istotny wypływ na czas konstruowania klasyfikatora, jest rozmiar
+danych. Podczas tworzenia implementacji algorytmów często korzysta się z małych zbiorów danych,
+które ułatwiają testowanie poprawności. Dopiero w momencie, gdy algorytm zostanie
+uruchomiony na rzeczywistych danych, istnieje możliwość sprawdzenia, czy program jest w stanie
+efektywnie przetwarzać dane i dostarczyć ostateczne rozwiązanie. Taka sytuacja miała miejsca w przypadku
+równoległych implementacji algorytmu ID3. Rysunek \ref{fig:analysis} przedstawia jak zmienia się
+całkowity czas, potrzebny na konstrukcje klasyfikatora, w zależności od ilości rekordów w zbiorze danych.
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.9\textwidth]{analysis.pdf}
+    \caption{Zależność czasu od ilości rekordów.\\Źródło: Opracowanie własne.}
+    \label{fig:analysis}
+\end{figure}
+
+Przy niewielkiej liczbie rekordów czas trwania wszystkich 3 implementacji algorytmu ID3 jest prawie identyczny.
+Wraz z rosnącą liczbą rekordów najlepsze rezultaty osiąga algorytm, gdzie zastosowano równoległość węzłów. Zastosowanie
+algorytmem z równoległością atrybutów nie przynosi znaczących korzyści. Czas budowy klasyfikatora, bez względu na ilość rekordów
+nie różni się od czasu implementacji sekwencyjnej. 
+Po przeanalizowaniu rozwiązania, gdzie równolegle przetwarzane są atrybuty, zostały wyciągnięte następujące wnioski:
+implementacja jest mało efektywna bez względu na rodzaj i wielkość zbioru danych, prawdopodobną przyczyną niskiej
+wydajności implementacji jest zastosowanie konceptu metadanych. Jak opisano w rozdziale \ref{common-code-blocks} celem tworzenia
+metadanych było zredukowanie ilości powtarzanych obliczeń. Wiąże się to z tym, że najbardziej obciążające obliczenia
+dokonywane są w momencie tworzenia metadanych. Z tego powodu, obliczanie zrównoważonego przyrostu informacji dla każdego
+atrybutu jest działaniem zbyt trywialnym. Koszt powoływania do życia wątków oraz obsługi równoległości jest większy
+niż korzyść płynąca z równoległego przetwarzania danych.
+Inaczej sytuacja prezentuje się w przypadku równoległego przetwarzania węzłów. Tutaj równolegle tworzone są całe węzły, a więc
+zarówno tworzenie metadanych jak i obliczanie zrównoważonych zysków informacji. Wspólnie, działania wymagają sporo mocy obliczeniowej i dlatego
+implementacja korzystając z równoległości jest skuteczna.
+
+Sytuacja odwraca się w przypadku przetwarzania małych zbiorów danych. Małe bloki danych nie wymagają dużej mocy obliczeniowej
+nawet w przypadku tworzenia metadanych. Rysunek \ref{fig:analysis-start} również prezentuje zależność czas wykonania programu
+ilości rekordów, jednak w tym przypadku zbiory danych są niewielkie. Wielkość zbioru danych wacha się od 120 do 140 tys. Im mniej rekordów
+jest przetwarzanych tym bardziej efektywny jest algorytm sekwencyjny.
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.9\textwidth]{analysis-start.pdf}
+    \caption{Zależność czasu od ilości rekordów przy małym\\obciążeniu procesora. Źródło: Opracowanie własne.}
+    \label{fig:analysis-start}
+\end{figure}
+
+\subsection{Ilość pamięci RAM oraz Heap Size}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.9\textwidth]{analysis-ram.pdf}
+    \caption{Zależność czasu od ilości rekordów i dostępnej\\pamięci RAM. Źródło: Opracowanie własne.}
+    \label{fig:patterns-ram}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.9\textwidth]{analysis-heap-size.pdf}
+    \caption{Zależność czasu od wartości Heap Size.\\Źródło: Opracowanie własne.}
+    \label{fig:analysis-heap-size}
+\end{figure}
+
+\subsection{Liczba wątków}
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.9\textwidth]{analysis-threads.pdf}
+    \caption{Zależność czasu od ilości przydzielonych wątków.\\Źródło: Opracowanie własne.}
+    \label{fig:analysis-threads}
+\end{figure}
+
+
+\subsection{Zaistniałe problemy}
+
 Pierwotnie program został zaimplementowany z wykorzystaniem uproszczeń jakie oferuje język Java 11
 jak np. strumienie (Java Stream API). Interfejs strumieni umożliwia tworzenie
 bardziej spójnego i czytelnego kodu. Korzystanie z udogodnień może wiązać się jednak ze skutkami ubocznymi.
@@ -929,6 +1055,22 @@ potrzebnego na wykonanie. Z tego powodu wprowadzono zmiany w celu poprawy wydajn
 takie jak zastąpienie list przez tablice (tam, gdzie to możliwe), a także rezygnacja
 z użycia strumieni i zamiana ich na pętle for.
 
+Kolejnym problemem, który został zaobserwowany była gwałtownie rosnąca ilość wykorzystanego Heap Size.
+Podjęte zostały próby odnalezienia ewentualnych miejsc wycieków pamięci tzw. 'Memory Leaks'. Język \textit{Java}
+posiada \textit{Garbage Collector}. Oznacza to, że programista nie zarządza samodzielnie przydzielaniem jak i zwalnianiem
+pamięci, natomiast
+Dzięki użyciu narzędzi takich jak \textit{JavaFX} możliwe jest generowanie wykresów zużycia Heap Size
+w czasie trwania programu. Wykresy prezentowane w ramach analizy \textit{JavaFX}, pokazały że ilość
+zaalokowanej pamięci rosła wraz z czasem trwania programu a \textit{Garbage Collector} nie miał możliwości
+zwalniania jest dostatecznie szybko. 
+Najprawdopodobniej kluczową role odgrywa wykorzystanie rekurencji, która nie jest optymalna pod względem
+zajmowanej pamięci.  Dodatkowy problem to ładowanie do pamięci programu ogromnych zbiorów danych. 
+Podejście dostarczania danych we fragmentach, które zaproponowane zostało w omówionym artykule \cite{parallel-algorithm-to-induce-decision-trees}
+wydaje się być ciekawym pomysłem, które mogłoby pomóc pozbyć się problemu przeładowanej pamięci.
+
+\newpage
+
+\section{Podsumowanie}
 \newpage
 
 \listoftables
