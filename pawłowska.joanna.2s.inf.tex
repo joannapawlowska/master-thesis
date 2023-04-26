@@ -39,13 +39,21 @@
 \usepackage{graphicx}
 \graphicspath{ {./img/} }
 
-
 % allow text color
 \usepackage{xcolor}
 
 % allow code listings
 \usepackage{listings}
 \lstset{basicstyle=\ttfamily}
+
+% place page numbers on right side
+% \usepackage{fancyhdr}
+% \fancypagestyle{plain}{
+%   \fancyhf{}
+%   \renewcommand{\headrulewidth}{0pt}
+%   \fancyfoot[R]{\thepage}
+% }
+% \pagestyle{plain}
 
 \begin{document}
 
@@ -55,21 +63,28 @@
 \titleformat*{\section}{\Large\bfseries}
 \titleformat*{\subsection}{\large\bfseries}
 
-\begin{figure*}[p!]
-    \centering
-    \thispagestyle{empty}
-	\includegraphics[width=1.2\textwidth,height=\textheight,keepaspectratio]{tytulowa.pdf}
-\end{figure*}
+\newgeometry{left=1cm,right=0cm,top=0cm,bottom=0cm}
+\noindent
 
-\begin{figure*}[p!]
+\begin{figure}[H]
     \centering
-	\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{oswiadczenie.pdf}
-\end{figure*}
+	\includegraphics[width=\paperwidth,height=0.99\paperheight,keepaspectratio]{tytulowa.pdf}
+\end{figure}
+\newpage
 
-\begin{figure*}[p!]
+\begin{figure}[H]
     \centering
-	\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{plagiat.pdf}
-\end{figure*}
+	\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{oswiadczenie.pdf}
+\end{figure}
+\newpage
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=\paperwidth,height=\paperheight,keepaspectratio]{plagiat.pdf}
+\end{figure}
+\newpage
+
+\restoregeometry
 
 % add table of contents
 \tableofcontents
@@ -849,7 +864,7 @@ protected static void createTree(Node node) {
 }
 \end{lstlisting}
 
-\subsubsection{Równoległość na poziomie atrybutów}
+\subsubsection{Równoległość na poziomie atrybutów}\label{executor-service}
 
 Pierwsza równoległa implementacja polega na podziale zadań obliczenia zrównoważonego przyrostu informacji pomiędzy oddzielne wątki.
 Jest to podejście które wykorzystuje równoległość danych. Dane dzielone są pionowo (wertykalnie).
@@ -941,49 +956,52 @@ Ustawienie argumentu na wartość \verb|PARALLEL_NODES| spowoduje uruchomienia a
 \newpage
 \section{Analiza wyników}
 
-Rozdział piąty zawiera opis analizy implementacji pod kątem wydajności. Poruszone zostały w nim
+Rozdział szósty zawiera opis analizy algorytmów pod kątem ich wydajności. Poruszone zostały
 tematy związane z czasem trwania poszczególnych wykonań algorytmu, zużyciem pamięci RAM i pamięci
-przydzielonej procesowi oraz ilością wykorzystanych wątków. Analiza oparta jest na danych zgromadzonych
-dzięki przeprowadzonym testom algorytmu. Wyniki testów zostały przetworzone oraz przedstawione w formie
-wykresów stworzonych przy użyciu języka \textit{Python} oraz biblioteki \textit{Plotnine} umożliwiającą
+przydzielonej procesowi czy ilością wykorzystanych wątków. Analiza oparta jest na danych zgromadzonych
+dzięki przeprowadzonym testom. Wyniki pomiarów zostały przedstawione w formie
+wykresów stworzonych przy użyciu języka \textit{Python} oraz biblioteki \textit{Plotnine}, która umożliwia
 korzystanie z pakietu \textit{ggplot2}.
 
-\subsection{Założenia}
-Głównym celem zastosowania wielowątkowości jest tworzenie mechanizmów, które przyspieszają
-działanie programów lub zwiększają ich wydajność (np. poprzez obsługę wielu żądań w tym samym momencie).
-W przypadku implementacji algorytmu ID3 celem zastosowania przetwarzania wielowątkowego było
-skrócenie czasu budowy drzewa decyzyjnego.
-
-W celu sprawdzenia poprawności działania kluczowych elementów implementacji, w programie zawarte
-zostały testy jednostkowe. Klasy zawierające logikę, która wpływa na strukturę drzewa, zostały przetestowane
-na danych, dla których znana była poprawna forma kształtu drzewa. Dzięki przetestowaniu algorytmu
-pod względem poprawności działania, podczas analizy kluczowej dla tematu pracy, założono,
-że algorytmy działają poprawnie a cała uwaga została skupiona tylko na wydajności programu.
-
 \subsection{Środowisko testowe}
-Większość testów zostało przeprowadzonych na maszynie z procesorem Intel coś tam który posiada 4 rdzeniach
-oraz 16GB pamięci RAM. Dodatkowo jednokrotnie użyto maszyny z procesorem AMD Ryzen 5 2500U i 8 GB pamięci RAM.
+Większość testów zostało przeprowadzonych na komputerze z 4 rdzeniowym procesorem Intel Core i7-7700HQ
+z 16GB pamięci RAM. Dodatkowo, do przeprowadzania jednego typu testów, użyto komputera z 4 rdzeniowym procesorem AMD
+Ryzen 5 2500U z 8 GB pamięci RAM.
 
-Podczas testowania istotne było zachowania podobnych warunków. Nie jest możliwe
-całkowite wyłączenie wszystkich innych aplikacji, ponieważ o działaniu wielu z nich decyduje
-system operacyjny. Jednak w celu minimalizacji obciążenia procesora innymi procesami
-wszystkie możliwe do zatrzymania programy zostały wyłączone.
+Podczas przeprowadzania testów wydajnościowych istotne jest zachowania podobnych warunków środowiska testowego.
+Nie jest możliwe całkowite wyłączenie innych aplikacji, ponieważ o działaniu wielu z nich decyduje
+system operacyjny. Jednakże w celu minimalizacji obciążenia procesora innymi procesami, wszystkie możliwe
+do zatrzymania programy zostały wyłączone.
 
-Dodatkową techniką, która miała na celu zmniejszenie wpływu zewnętrznych czynników na rezultaty testów
-było zastosowanie uśredniania wyników. Ręczne uruchamianie programu z wiersza poleceń jest mało optymalne,
-dlatego cały proces zbierania danych testowych został zautomatyzowany. W celu wielokrotnego uruchamiania programu
-dla różnych parametrów zostały utworzone skrypty w języku \textit{Bash}. Dla każdej konfiguracji
-parametrów program został uruchamiany kilkukrotnie, tak aby następnie wyniki mogły zostać uśrednione
-a przez to stały się bardziej miarodajne. 
+Dodatkową techniką, która miała na celu zmniejszenie wpływu zewnętrznych czynników na rezultaty testów,
+było zastosowanie uśredniania wyników. Dla każdej konfiguracji parametrów program został uruchamiany kilkukrotnie,
+aby podczas generowania wykresów, rezultaty mogły zostać uśrednione, stając się przez to bardziej wiarygodne.
+Ręczne uruchamianie programu z wiersza poleceń jest mało optymalne, dlatego cały proces zbierania rezultatów testów
+został zautomatyzowany. W celu wielokrotnego uruchamiania programu dla różnych parametrów, zostały utworzone
+skrypty w języku \textit{Bash}.
 
-\subsection{Rozmiar danych}
-Pierwszym czynnikiem, który ma istotny wypływ na czas konstruowania klasyfikatora, jest rozmiar
-danych. Podczas tworzenia implementacji algorytmów często korzysta się z małych zbiorów danych,
-które ułatwiają testowanie poprawności. Dopiero w momencie, gdy algorytm zostanie
-uruchomiony na rzeczywistych danych, istnieje możliwość sprawdzenia, czy program jest w stanie
-efektywnie przetwarzać dane i dostarczyć ostateczne rozwiązanie. Taka sytuacja miała miejsca w przypadku
-równoległych implementacji algorytmu ID3. Rysunek \ref{fig:analysis} przedstawia jak zmienia się
-całkowity czas, potrzebny na konstrukcje klasyfikatora, w zależności od ilości rekordów w zbiorze danych.
+\subsection{Kryteria testów wydajnościowych}
+
+W przypadku implementacji algorytmu ID3, głównym celem zastosowania przetwarzania wielowątkowego było
+skrócenie czasu budowy drzewa decyzyjnego. Analizowanie wydajności w pierwszej kolejności wymaga ustalenia, czy stworzony
+program jest w stanie dostarczać poprawne wyniki.
+W celu walidacji poprawności kluczowych elementów implementacji, program został przetestowany za
+pomocą testów jednostkowych. Klasy zawierające logikę, która wpływa na strukturę drzewa, zostały przetestowane
+na danych, dla których znany był poprawy kształt drzewa. Dzięki uzyskaniu pozytywnych wyników
+testowania algorytmu pod względem poprawności, podczas analizy kluczowej dla tematu pracy, cała
+uwaga została skupiona już tylko na badaniu wydajności.
+W dalszej części rozdziału omówione zostały kryteria testów przeprowadzonych pod kątem wydajności
+poszczególnych implementacji algorytmu ID3.
+
+\subsubsection{Rozmiar danych}
+Czynnikiem, który ma istotny wypływ na czas konstruowania klasyfikatora jest rozmiar
+danych. Podczas implementowania algorytmów, często korzysta się z małych zbiorów danych,
+które ułatwiają testowanie ich poprawności. Dopiero w momencie, gdy algorytm zostanie
+uruchomiony dla rzeczywistych danych, istnieje możliwość sprawdzenia, czy program jest w stanie
+efektywnie przetwarzać dane i dostarczyć ostateczne rozwiązanie. 
+Rysunek \ref{fig:analysis} przedstawia, jak zmienia się całkowity czas, potrzebny na konstrukcje
+klasyfikatora, w zależności od ilości rekordów w zbiorze danych. Na wykresie ujęto trzy rodzaje algorytmu:
+wersja sekwencyjna, zrównoleglanie atrybutów oraz zrównoleglanie węzłów.
 
 \begin{figure}[H]
     \centering
@@ -992,25 +1010,25 @@ całkowity czas, potrzebny na konstrukcje klasyfikatora, w zależności od iloś
     \label{fig:analysis}
 \end{figure}
 
-Przy niewielkiej liczbie rekordów czas trwania wszystkich 3 implementacji algorytmu ID3 jest prawie identyczny.
-Wraz z rosnącą liczbą rekordów najlepsze rezultaty osiąga algorytm, gdzie zastosowano równoległość węzłów. Zastosowanie
-algorytmem z równoległością atrybutów nie przynosi znaczących korzyści. Czas budowy klasyfikatora, bez względu na ilość rekordów
-nie różni się od czasu implementacji sekwencyjnej. 
-Po przeanalizowaniu rozwiązania, gdzie równolegle przetwarzane są atrybuty, zostały wyciągnięte następujące wnioski:
-implementacja jest mało efektywna bez względu na rodzaj i wielkość zbioru danych, prawdopodobną przyczyną niskiej
-wydajności implementacji jest zastosowanie konceptu metadanych. Jak opisano w rozdziale \ref{common-code-blocks} celem tworzenia
+Przy niewielkiej liczbie rekordów czas trwania wszystkich trzech implementacji algorytmu ID3 jest prawie identyczny.
+Wraz z rosnącą liczbą rekordów, najlepsze rezultaty osiąga algorytm, gdzie zastosowano równoległość węzłów. Zastosowanie
+algorytmu z równoległością atrybutów nie przynosi znaczących korzyści. Czas budowy klasyfikatora, bez względu na ilość rekordów,
+praktycznie nie różni się od czasu osiąganego dla implementacji sekwencyjnej. 
+
+Po przeanalizowaniu rozwiązania z równoległym przetwarzaniem atrybutów, zostały wyciągnięte następujące wnioski.
+Implementacja jest mało efektywna bez względu na rodzaj i wielkość zbioru danych. Prawdopodobną przyczyną niskiej
+wydajności implementacji jest zastosowanie konceptu metadanych. Jak opisano w rozdziale \ref{common-code-blocks}, celem tworzenia
 metadanych było zredukowanie ilości powtarzanych obliczeń. Wiąże się to z tym, że najbardziej obciążające obliczenia
 dokonywane są w momencie tworzenia metadanych. Z tego powodu, obliczanie zrównoważonego przyrostu informacji dla każdego
-atrybutu jest działaniem zbyt trywialnym. Koszt powoływania do życia wątków oraz obsługi równoległości jest większy
-niż korzyść płynąca z równoległego przetwarzania danych.
-Inaczej sytuacja prezentuje się w przypadku równoległego przetwarzania węzłów. Tutaj równolegle tworzone są całe węzły, a więc
-zarówno tworzenie metadanych jak i obliczanie zrównoważonych zysków informacji. Wspólnie, działania wymagają sporo mocy obliczeniowej i dlatego
-implementacja korzystając z równoległości jest skuteczna.
+atrybutu jest działaniem mało złożonym obliczeniowo. Koszt powoływania do życia wątków oraz obsługi równoległości jest większy
+niż korzyść płynąca z równoległego przetwarzania atrybutów.
 
-Sytuacja odwraca się w przypadku przetwarzania małych zbiorów danych. Małe bloki danych nie wymagają dużej mocy obliczeniowej
-nawet w przypadku tworzenia metadanych. Rysunek \ref{fig:analysis-start} również prezentuje zależność czas wykonania programu
-ilości rekordów, jednak w tym przypadku zbiory danych są niewielkie. Wielkość zbioru danych wacha się od 120 do 140 tys. Im mniej rekordów
-jest przetwarzanych tym bardziej efektywny jest algorytm sekwencyjny.
+Inaczej sytuacja prezentuje się w przypadku równoległego przetwarzania węzłów. Tutaj równolegle tworzone są całe węzły. Operacje, które wykonywane są
+podczas tworzenia węzła to tworzenie metadanych jak i obliczanie zrównoważonych zysków informacji. Wspólnie, działania wymagają
+sporo mocy obliczeniowej i dlatego zastosowanie równoległości jest uzasadnione. Takie rozwiązanie sprawia, że implementacja jest skuteczna.
+
+Sytuacja odwraca się w przypadku przetwarzania małych zbiorów danych. Niewielkie bloki danych nie wymagają dużej mocy obliczeniowej
+nawet w przypadku tworzenia metadanych.
 
 \begin{figure}[H]
     \centering
@@ -1019,14 +1037,87 @@ jest przetwarzanych tym bardziej efektywny jest algorytm sekwencyjny.
     \label{fig:analysis-start}
 \end{figure}
 
-\subsection{Ilość pamięci RAM oraz Heap Size}
+Rysunek \ref{fig:analysis-start} ponownie prezentuje zależność czasu wykonania od
+ilości rekordów, jednak na przykładzie zbiorów danych o małych rozmiarach. Ilość rekordów wacha się od 120 do 140000. 
+Im mniej rekordów jest przetwarzanych, tym bardziej efektywny jest algorytm sekwencyjny.
+
+Kolejną składową wpływającą na wielkość zbioru danych jest liczba atrybutów. Im więcej atrybutów posiada
+rekord, tym więcej obliczeń zrównoważonego przyrostu informacji musi zostać wykonanych na poziomie każdego węzła.
+Rysunek \ref{fig:analysis-attributes} przedstawia zależność czasu wykonania algorytmu od rosnącej liczby atrybutów.
+Zaprezentowane wyniki zostały utworzone na podstawie zbiorów danych, z których każdy zawierał po 3000 rekordów.
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.9\textwidth]{analysis-attributes.pdf}
+    \caption{Zależność czasu od ilości atrybutów.\\Źródło: Opracowanie własne.}
+    \label{fig:analysis-attributes}
+\end{figure}
+
+Podobnie jak w przypadku zwiększania ilości rekordów, dla niewielkiej ilości atrybutów, algorytm ze
+zrównoleglaniem węzłów okazał się być mniej efektywny niż pozostałe. Moment wyrównania
+przypada na około 20 atrybutów. Przy stopniowym zwiększaniu ilości atrybutów, widać, że
+zachodzą różnice w stosunku do zwiększania ilości rekordów.
+Na wykresie można zauważyć, że wydajność algorytmów równoległych
+nie ulega wyraźniej poprawie. Przy 130 atrybutach czas wykonania programu, gdzie równolegle przetwarzane są węzły
+jest niewiele lepszy od pozostałych. W celu wyciągnięcia wniosków, konieczne było sprawdzenie jak kształtuje się
+wykres dla większych ilości atrybutów. Znalezienie zbiorów danych nadających się do testowania algorytmu ID3, w których ilość
+atrybutów będzie wzrastała proporcjonalnie, nie jest łatwym zadaniem. Z tego powodu, kolejny wykres przestawia zależności tylko dla
+jednego, największego pod względem ilości atrybutów zbioru danych, który udało się uzyskać do celów badania (13 200 atrybutów).
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.9\textwidth]{analysis-attributes-bar-plot.pdf}
+    \caption{Zależność czasu od ilości atrybutów.\\Źródło: Opracowanie własne.}
+    \label{fig:analysis-attributes-bar-plot}
+\end{figure}
+
+Powyższy rysunek daje powody do stwierdzenia, że żadna ze stworzonych implementacji równoległych nie jest optymalna,
+gdy obciążenie procesora spowodowane jest dużą ilością atrybutów.
+
+\subsubsection{Ilość pamięci RAM oraz pamięci Heap Space}
+
+Kolejnym czynnikiem ważnym podczas przeprowadzania analizy wydajności programu jest dostępna pamięć.
+Pamięć operacyjna RAM pełni funkcje pośrednika pomiędzy pamięcią tymczasową a dyskami twardymi.
+W pamięci tej przechowywane są m.in.: informacje na temat działających programów. Procesor wykorzystuje informacje
+przechowywane w pamięci RAM w celu zarządzania procesami.
+Większa ilość pamięci RAM korzystnie wpływa na szybkość i płynność działania programów. 
+Z powodu braku możliwości dołożenia pamięci RAM w komputerze, na którym przeprowadzane były testy, zdecydowano, że
+przeprowadzona zostanie serie testów na oddzielnym sprzęcie o innych parametrach. Program został uruchomiony
+dla jednakowego zbioru danych na dwóch różnych komputerach z dostępnymi 8GB oraz 16 GM pamięci RAM.
+Wykres \ref{fig:analysis-start} został rozszerzony o rezultaty zgromadzone podczas testów na komputerze z 8GB pamięci RAM.
+Wyniki zaprezentowane są na rysunku \ref{fig:analysis-ram}.
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.9\textwidth]{analysis-ram.pdf}
     \caption{Zależność czasu od ilości rekordów i dostępnej\\pamięci RAM. Źródło: Opracowanie własne.}
-    \label{fig:patterns-ram}
+    \label{fig:analysis-ram}
 \end{figure}
+
+Mniejsza ilość pamięci RAM znacząco wpływa na czas potrzebny do stworzenia klasyfikatora.
+Prawie każde wykonanie algorytmu na komputerze z dostępnymi 16GB pamięci RAM było szybsze niż
+jakiekolwiek wykonanie algorytmu na komputerze z 8GB pamięci RAM.
+
+Czasy wykonań poszczególnych implementacji algorytmu ID3, są bardziej zróżnicowane dla rezultatów
+osiągniętych na komputerze z 8GB pamięci.
+Nie jest to jednak dowód na to, że zrównoleglanie węzłów jest bardziej efektywne
+na komputerze o słabszych parametrach. Mniejsza ilość pamięci RAM skutkuje dłuższym
+czasem wykonania algorytmu. Jak pokazano w pierwszej części analizy, stosowanie równoległości jest skuteczniejsze,
+gdy procesor jest bardziej obciążony. Z tego powodu, wykres sprawia wrażenie, że algorytm wykonywany na słabszym
+sprzęcie działa bardziej efektywnie.
+Dla każdego komputera można ustalić moment, w którym stosowanie równoległości przynosi korzyści. Jest to moment
+przecięcia się lini odpowiadającej wykonaniu równoległemu z linią odpowiadającą wykonaniom sekwencyjnym.
+Dla słabszego komputera moment ten przypada na około 120 tys. rekordów. Dla mocniejszego komputera
+jest to około 5 tys. rekordów.
+
+Kolejnym typem omawianej pamięci jest pamięć nazywana stertą (\textit{Heap Space}). Jest to wydzielona
+część pamięci RAM, która przydzielona jest maszynie wirtualnej Javy w czasie jej startu.
+Podczas uruchomiania programu, napisanego w języku Java, istnieje możliwość konfiguracji ilości
+pamięci RAM przydzielonej maszynie wirtualnej. Parametr \verb|-Xmx| umożliwia konfigurację maksymalnej
+wartości sterty (\textit{Heap Size}). Przykładowo dodając parametr \verb|-Xmx4096m|
+maksymalna wartość \text{Heap Size} wynosi 4096 megabajtów. Powiększanie \textit{Heap Size} ma sens, jeśli do pamięci programu
+ładowane są bardzo duże ilości danych. Jeśli wartość pozostanie na niskim poziomie, wówczas pamięć zostaje przepełniona, w wyniku czego
+program zostaje przerwany z powodu błędu typu \verb|java.lang.OutOfMemoryError|.
 
 \begin{figure}[H]
     \centering
@@ -1035,7 +1126,23 @@ jest przetwarzanych tym bardziej efektywny jest algorytm sekwencyjny.
     \label{fig:analysis-heap-size}
 \end{figure}
 
-\subsection{Liczba wątków}
+W oparciu o rysunek \ref{fig:analysis-heap-size} można stwierdzić, że w odróżnieniu do pamięci RAM,
+zwiększanie wartości \textit{Heap Size} nie wpływa bezpośrednio na poprawę wydajności którejkolwiek implementacji algorytmu.
+Pomiary zostały wykonane dla jednego zbioru danych, dla którego bez problemu można było uruchomić algorytm nawet
+przy niskiej wartości \textit{Heap Size}. Nieznaczące pogorszenie efektywności działania programu, wraz ze wzrostem wartości \textit{Heap Size},
+może wynikać z tego, że uruchomianie maszyny wirtualnej Javy z większą ilością przydzielonej pamięci, jest bardziej czasochłonnym procesem.
+
+\subsubsection{Liczba wątków}
+Ostatnim przeanalizowanym zagadnieniem jest wpływ ilości tworzonych wątków na czas trwania
+pracy programu. Podczas tej analizy, pojęcie wątek używane jest w kontekście wątków
+tworzonych w ramach maszyny wirtualnej Javy. Każdy wątek tworzony przez \textit{JVM} związany jest
+z klasą \verb|java.lang.Thread|. Tworzenie instancji wymienionej klasy rozpoczyna cykl życia wątku.
+Dopuszczalne stany, w których może znajdować się wątek to m.in.: \verb|RUNNABLE|, 
+\verb|BLOCKED| czy \verb|WAITING|. Programista może zarządzać ilością wątków poprzez jawne tworzenie instancji
+klasy \verb|Thread| lub też może skorzystać z interfejsu \verb|Executor|, w ramach którego tworzone są pule wątków.
+
+Rysunek \ref{fig:analysis-threads} przedstawia wyniki testów przeprowadzonych pod kątem zmiennej
+ilości przydzielanych wątków.
 
 \begin{figure}[H]
     \centering
@@ -1044,27 +1151,44 @@ jest przetwarzanych tym bardziej efektywny jest algorytm sekwencyjny.
     \label{fig:analysis-threads}
 \end{figure}
 
+Liczba wątków, którą należy użyć w programie Java, zależy od wielu czynników. Największe znaczenie
+mają zasoby sprzętowe, charakter programu czy wielkość obciążenia programu.
+Zaleca się stosowanie liczby wątków równej lub trochę większej od liczby dostępnych rdzeni logicznych.
+Komputer, na którym przeprowadzano testy posiada 4 rdzenie fizyczne co w konsekwencji daje do
+dyspozycji 8 rdzeni logicznych. Na grafice \ref{fig:analysis-threads} widać, że
+zbyt mała ilość wątków istotnie wydłuża czas pracy programu.
+Z kolei zbyt duża ilości wątków, negatywnie wpływa na czas wykonania. Przyczyną takiej tendencji, 
+są ograniczone zasoby systemu operacyjnego, który umożliwia ustaloną ilość operacji, które
+efektywnie mogą być przetwarzane równolegle. Powoływanie do życia nowego wątku
+jest kosztowną operacją, dlatego tworzenie wątków w zbyt dużej ilości, może negatywnie wpłynąć
+na efektywność programu.
 
 \subsection{Zaistniałe problemy}
-
 Pierwotnie program został zaimplementowany z wykorzystaniem uproszczeń jakie oferuje język Java 11
 jak np. strumienie (Java Stream API). Interfejs strumieni umożliwia tworzenie
 bardziej spójnego i czytelnego kodu. Korzystanie z udogodnień może wiązać się jednak ze skutkami ubocznymi.
 Obliczenia na dużych zbiorach danych znacznie obciążają program, co skutkuje zwiększeniem czasu
-potrzebnego na wykonanie. Z tego powodu wprowadzono zmiany w celu poprawy wydajności
+potrzebnego na wykonanie. Z tego powodu, w celu poprawy wydajności wprowadzono poprawki
 takie jak zastąpienie list przez tablice (tam, gdzie to możliwe), a także rezygnacja
 z użycia strumieni i zamiana ich na pętle for.
 
-Kolejnym problemem, który został zaobserwowany była gwałtownie rosnąca ilość wykorzystanego Heap Size.
-Podjęte zostały próby odnalezienia ewentualnych miejsc wycieków pamięci tzw. 'Memory Leaks'. Język \textit{Java}
-posiada \textit{Garbage Collector}. Oznacza to, że programista nie zarządza samodzielnie przydzielaniem jak i zwalnianiem
-pamięci, natomiast
-Dzięki użyciu narzędzi takich jak \textit{JavaFX} możliwe jest generowanie wykresów zużycia Heap Size
-w czasie trwania programu. Wykresy prezentowane w ramach analizy \textit{JavaFX}, pokazały że ilość
-zaalokowanej pamięci rosła wraz z czasem trwania programu a \textit{Garbage Collector} nie miał możliwości
-zwalniania jest dostatecznie szybko. 
-Najprawdopodobniej kluczową role odgrywa wykorzystanie rekurencji, która nie jest optymalna pod względem
-zajmowanej pamięci.  Dodatkowy problem to ładowanie do pamięci programu ogromnych zbiorów danych. 
+Kolejnym problemem, który został zaobserwowany była gwałtownie rosnąca ilość wykorzystanego \textit{Heap Space}.
+Język \textit{Java} oferuje mechanizm usuwania nieużytków \textit{Garbage Collection}. Oznacza to, że programista nie zarządza
+samodzielnie przydzielaniem jak i zwalnianiem pamięci. Za te czynności odpowiedzialny jest program nazywany \textit{Garbage Collector}.
+Podstawowe zadania programu to alokacja pamięci oraz odzyskiwanie jej dzięki usuwaniu obiektów, do których nie istnieją już referencje.
+Pomimo tego, iż programista nie jest bezpośrednio odpowiedzialny za zarządzanie pamięcią, istnieje kilka typów błędów w
+implementacji, które mogą powodować wycieki pamięci tzw. 'Memory Leaks'. Wycieki powodują przepełnienie pamięci,
+co skutkuje przerwaniem pracy programu.
+Dzięki użyciu narzędzi takich jak \textit{Java VisualVM} możliwe jest generowanie wykresów wykorzystania stosu
+w trakcie trwania wykonywania programu.
+W celu rozwiązania problemu, podjęte zostały próby odnalezienia ewentualnych miejsc wycieków pamięci.
+Wykresy analizy wykonanej narzędziem \textit{Java VisualVM} pokazały, że ilość zaalokowanej pamięci rosła wraz
+z czasem trwania programu, a \textit{Garbage Collector} nie miał możliwości zwalniania jest dostatecznie szybko. 
+Najprawdopodobniej kluczową role w zaistniałym problemie odgrywa wykorzystanie rekurencji, która nie jest optymalna pod względem
+zajmowanej pamięci. Dodatkowym czynnikiem może być ładowanie do pamięci programu ogromnych zbiorów danych.
+Próbą zmniejszenia wykorzystanej pamięci było zaimplementowanie współdzielenia danych. Zamiast duplikacji części rekordów,
+przekazywanych do węzłów potomnych, przekazywane były tylko numery indeksów, które dotyczyły wybranego węzła.
+Niestety zaimplementowane poprawki nie przyniosły pozytywnych rezultatów. 
 Podejście dostarczania danych we fragmentach, które zaproponowane zostało w omówionym artykule \cite{parallel-algorithm-to-induce-decision-trees}
 wydaje się być ciekawym pomysłem, które mogłoby pomóc pozbyć się problemu przeładowanej pamięci.
 
