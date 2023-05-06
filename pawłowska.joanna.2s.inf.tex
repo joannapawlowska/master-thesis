@@ -95,26 +95,34 @@
 \phantomsection
 \addcontentsline{toc}{section}{Wstęp}
 \section*{Wstęp}
-Celem jest porównanie 
+Równoległość jest techniką wykorzystywaną w wielu obszarach informatyki, dzięki której 
+możliwe jest szybsze przetwarzanie danych oraz bardziej efektywne wykorzystanie zasobów komputera.
+Stosowanie współbieżności w uczeniu maszynowym miało swoje początki już w latach 80. XX wieku.
+Od tego czasu nastąpiło jednak wiele zmian zarówno technologicznych jak i w dziedzinie uczenia maszynowego.
+Rozwój informatyki sprzętowej zapewnia większe możliwości w kontekście dostępnej mocy obliczeniowej.
+Z kolei postęp w obszarze uczenia maszynowego doprowadził do opracowania coraz bardziej skomplikowanych algorytmów, 
+przetwarzających stale rosnące zbiory danych. Wszystkie te czynniki sprawiają, że zagadnienie współbieżności w uczeniu 
+maszynowym pozostaje ciągle istotne i aktualne.
 
-Wykorzystując specyfikę języka \textit{Java} można potraktować sekwencyjną implementacje algorytmu
-jako bazę dla pozostałych dwóch, równoległych implementacji (mechanizm dziedziczenia).  
-
+Celem pracy jest zaproponowanie różnych implementacji algorytmu ID3 oraz analiza ich wydajności.
+Punktem wyjściowym do porównania będzie implementacja sekwencyjna, w odniesieniu do której porównane zostaną dwie implementacje równoległe.
+Oczekiwanym rezultatem pracy jest przygotowanie dwóch równoległych wersji algorytmu, które w założeniu powinny okazać się bardziej
+efektywne od wersji sekwencyjnej.
 
 Praca składa się ze wstępu, pięciu rozdziałów oraz podsumowania. Pierwsze trzy
 rozdziały wchodzą w skład teoretycznej części pracy. Rozdział czwarty oraz piąty
 stanowią praktyczną część pracy.
 
 Pierwszy rozdział poświęcony jest matematycznemu opisowi drzew decyzyjnych.
-Przedstawiony w nim został schemat konstrukcji drzew decyzyjnych oraz różne algorytmy służące
+Przedstawiony został w nim schemat konstrukcji drzew decyzyjnych oraz różne algorytmy służące
 do ich budowy. Rozdział drugi skupiony jest na zagadnieniach związanych z przetwarzaniem równoległym.
 Zawiera on opis rodzajów procesów, sposoby dekompozycji problemów obliczeniowych a także
 opis wzorców programowania równoległego. Rozdział trzeci prezentuje przegląd literatury 
-na temat równoległych konstrukcji drzew decyzyjnych. W rozdziale czwartym przedstawiona
-została implementacja algorytmu ID3 umożliwiająca budowanie drzew decyzyjnych w sposób
-sekwencyjny oraz równoległy. W ostatnim rozdziale omówiona została analiza wydajności zaimplementowanego
-algorytmu. W rozdziale zaprezentowane zostały wyniki przeprowadzonych
-testów a także opisane zostały zaistniałe problemy implementacyjne. 
+na temat równoległych konstrukcji drzew decyzyjnych. W rozdziale czwartym przedstawione
+zostały zaimplementowane wersje algorytmu ID3, które umożliwiają budowanie drzew decyzyjnych w sposób
+sekwencyjny oraz równoległy. W ostatnim rozdziale omówiona została analiza wydajności zaimplementowanych
+wersji algorytmu. Wyniki przeprowadzonych testów zaprezentowane zostały formie graficznej.
+Dodatkowo opisane zostały również zaistniałe problemy implementacyjne. 
 \newpage
 
 \section{Drzewa decyzyjne}
