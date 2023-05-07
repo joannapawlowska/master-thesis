@@ -1226,8 +1226,35 @@ wydaje się być rozwiązaniem, które mogłoby pomóc pozbyć się problemu prz
 
 \cleardoublepage
 \phantomsection
-\addcontentsline{toc}{section}{Podsumowanie}
-\section*{Podsumowanie}
+\addcontentsline{toc}{section}{Zakończenie}
+\section*{Zakończenie}
+
+Celem pracy było opracowanie dwóch równoległych implementacji algorytmu ID3 oraz
+porównanie ich wydajności na tle implementacji sekwencyjnej. Aby zapewnić punkt odniesienia niezbędny do
+wykonania analizy, jako pierwsza zaimplementowana została klasyczna, sekwencyjna wersja algorytmu.
+W zaproponowanych równoległych wersjach algorytmu wykorzystane zostały techniki zrównoleglające
+obliczenia na poziomie atrybutów oraz węzłów. 
+Przyjęta została hipoteza, że implementacje równoległe powinny okazać się bardziej wydajne
+niż implementacja sekwencyjna.
+
+Wszystkie trzy implementacje zostały porównane pod kątem prędkości wykonania.
+Przeanalizowane zostało jak zmieniał się czas wykonywania programu w zależności od zmieniającej się liczby atrybutów,
+rosnącej ilości rekordów, liczby przedzielonych wątków, dostępnej pamięci RAM oraz pamięci typu \textit{Heap Space}.
+Przeprowadzone testy wykazały, że tylko jedna z równoległych wersji okazała
+się być bardziej wydajna niż wersja sekwencyjna. Zastosowanie zrównoleglenia
+na poziomie węzłów pozwoliło na szybszą konstrukcje drzew decyzyjnych, gdy przetwarzane były duże ilości rekordów.
+Z kolei implementacja, w której zastosowane zostało zrównoleglenie 
+na poziomie atrybutów, nie przyniosła istotnych korzyści w kontekście czasu wykonywania programu.
+Przyczyną takich rezultatów prawdopodobnie jest wykorzystanie konceptu metadanych.
+Jego celem było zminimalizowanie ilości wykonywanych działań, które są najbardziej złożone obliczeniowo.
+Z tego powodu, w implementacji równoległego przetwarzania atrybutów, działania przetwarzane współbieżnie
+były niewystarczająco złożone obliczeniowo, aby wykorzystanie techniki równoległości przyniosło pozytywny efekt.
+
+Istotną kwestią, która mogłaby zostać poprawiona w ramach dalszego rozszerzania pracy, jest ulepszenie implementacji zrównoleglającej węzły
+w zakresie zużycia pamięci \textit{Heap Space}. W skrajnych przypadkach, gdy przetwarzane są duże ilości rekordów lub atrybutów,
+zbyt duże zużycie pamięci nie pozwala na pomyślne zakończenie konstrukcji drzewa decyzyjnego. Przykładem rozwiązania, które
+mogłoby zostać zrealizowane w ramach kontynuacji oraz optymalizacji pracy, to technika dostarczania danych
+we fragmentach, która została przedstawiona w przeanalizowanej literaturze.
 \newpage
 
 \cleardoublepage
