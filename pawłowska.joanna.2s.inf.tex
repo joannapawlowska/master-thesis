@@ -48,13 +48,21 @@
 \renewcommand*{\lstlistlistingname}{Spis listingów}
 
 % place page numbers on right side
-% \usepackage{fancyhdr}
-% \fancypagestyle{plain}{
-%   \fancyhf{}
-%   \renewcommand{\headrulewidth}{0pt}
-%   \fancyfoot[R]{\thepage}
-% }
-% \pagestyle{plain}
+\usepackage{fancyhdr}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \fancyfoot[R]{\thepage}
+}
+\pagestyle{plain}
+
+% place captions the the top
+\floatstyle{plaintop}
+\restylefloat{table}
+
+% automatic hard spaces
+\usepackage{xspace}
+\newcommand{\latex}{\LaTeX\xspace}
 
 \begin{document}
 
@@ -97,15 +105,15 @@
 \section*{Wstęp}
 Równoległość jest techniką wykorzystywaną w wielu obszarach informatyki, dzięki której 
 możliwe jest szybsze przetwarzanie danych oraz bardziej efektywne wykorzystanie zasobów komputera.
-Stosowanie współbieżności w uczeniu maszynowym miało swoje początki już w latach 80. XX wieku.
+Stosowanie współbieżności w uczeniu maszynowym miało swoje początki już w~latach 80-tych XX wieku \cite{machine-learning-parallel-beginnings}.
 Od tego czasu nastąpiło jednak wiele zmian zarówno technologicznych jak i w dziedzinie uczenia maszynowego.
 Rozwój informatyki sprzętowej zapewnia większe możliwości w kontekście dostępnej mocy obliczeniowej.
-Z kolei postęp w obszarze uczenia maszynowego doprowadził do opracowania coraz bardziej skomplikowanych algorytmów, 
-przetwarzających stale rosnące zbiory danych. Wszystkie te czynniki sprawiają, że zagadnienie współbieżności w uczeniu 
+Z kolei postęp w~obszarze uczenia maszynowego doprowadził do opracowania coraz bardziej skomplikowanych algorytmów, 
+przetwarzających stale rosnące zbiory danych. Wszystkie te czynniki sprawiają, że~zagadnienie współbieżności w uczeniu 
 maszynowym pozostaje ciągle istotne i aktualne.
 
 Celem pracy jest zaproponowanie różnych implementacji algorytmu ID3 oraz analiza ich wydajności.
-Punktem wyjściowym do porównania będzie implementacja sekwencyjna, w odniesieniu do której porównane zostaną dwie implementacje równoległe.
+Punktem wyjściowym do porównania będzie implementacja sekwencyjna, w odniesieniu do której, porównane zostaną dwie implementacje równoległe.
 Oczekiwanym rezultatem pracy jest przygotowanie dwóch równoległych wersji algorytmu, które w założeniu powinny okazać się bardziej
 efektywne od wersji sekwencyjnej.
 
@@ -121,8 +129,8 @@ opis wzorców programowania równoległego. Rozdział trzeci prezentuje przeglą
 na temat równoległych konstrukcji drzew decyzyjnych. W rozdziale czwartym przedstawione
 zostały zaimplementowane wersje algorytmu ID3, które umożliwiają budowanie drzew decyzyjnych w sposób
 sekwencyjny oraz równoległy. W ostatnim rozdziale omówiona została analiza wydajności zaimplementowanych
-wersji algorytmu. Wyniki przeprowadzonych testów zaprezentowane zostały formie graficznej.
-Dodatkowo opisane zostały również zaistniałe problemy implementacyjne. 
+wersji algorytmu. Wyniki przeprowadzonych testów zaprezentowane zostały w formie graficznej.
+Dodatkowo opisane zostały zaistniałe problemy implementacyjne. 
 \newpage
 
 \section{Drzewa decyzyjne}
@@ -171,15 +179,12 @@ i nazywany jest tabelą decyzyjną. Rekordy tworzą wiersze tabeli a kolumny gru
 
 Zazwyczaj zakłada się, że rekordy, które należą do
 zbioru $S$ generowane są losowo zgodnie z pewnym nieznanym, wspólnym rozkładem prawdopodobieństwa $D$ nad przestrzenią $U$.
-
 Selekcja $(\sigma)$ względem atrybutów przedstawiona jest za pomocą notacji używanej w algebrze.
-Przykładowo wybranie z Tabeli \ref{tab:decision-table} rekordów, które dla atrybutu $a_3$ przyjmują
+Przykładowo wybranie z tabeli \ref{tab:decision-table} rekordów, które dla atrybutu $a_3$ przyjmują
 wartość~$v_{3,1}$ opisywane jest wyrażaniem $\sigma_{a_3=v_{3,1}}S$.
 
 Testem $t$ nazywany jest warunek dla podziału danych. W celu wyznaczenia najlepszego testu wykorzystywane
-są różne kryteria podziału.
-
-Na podstawie tabeli decyzyjnej przy użyciu testów na atrybutach konstruowane jest drzewo decyzyjne $DT$.
+są różne kryteria podziału. Przy użyciu testów na atrybutach konstruowane jest drzewo decyzyjne $DT$.
 Klasyfikator, który został stworzony ze zbioru danych $S$ oznaczany jest jako $DT(S)$. Korzystając z klasyfikatora
 $DT(S)$ możliwe jest wyznaczenie predykcji $DT(S)(x_q)$ dla wybranego elementu $x_q \in X$. Rozmiar drzewa decyzyjnego $DT(S)$ oraz dokładność predykcji $DT(S)(x_q)$
 w dużym stopniu zależy od wielkości zbioru $S$. Jeśli zbiór danych jest zbyt mały, to dokładność predykcji będzie niska.
@@ -410,7 +415,7 @@ implementacjach algorytmów.
 \subsection{Podstawowe pojęcia}
 Przetwarzanie równoległe jest tematem omawianym w ramach dziedziny systemów operacyjnych.
 Mimo, że celem pracy nie jest analiza zagadnień specyficznych dla systemów operacyjnych,
-poniżej przestawione zostały pojęcia, których zrozumienie jest konieczne do tworzenia 
+poniżej przestawione zostały pojęcia, których zrozumienie jest konieczne do~tworzenia 
 równoległych implementacji algorytmów.
 
 \textbf{Procesor} to jednostka sprzętowa, która pobiera dane z pamięci operacyjnej, interpretuje je
@@ -433,7 +438,7 @@ od operacji rdzeni logicznych przypisanych do innego rdzenia fizycznego.
 wykonywane jest przez procesor.
 
 \textbf{Instrukcja} definiowana jest jako bardziej złożone zadanie, które składa się ze zbioru rozkazów. Instrukcje
-mogą być niskopoziomowe (napisane w np. asemblerze) lub wysokopoziomowe (napisane w np. C, Java).
+mogą być niskopoziomowe (napisane w np. języku \textit{Asembler}) lub wysokopoziomowe (napisane w językach np. \textit{C} i \textit{Java}).
 Instrukcje wysokopoziomowe tłumaczone są na kilka instrukcji niskopoziomowych, natomiast instrukcje
 niskopoziomowe tłumaczone są na zbiór rozkazów. Zbiór rozkazów może być dzielony na podzbiory w celu
 uruchomienia każdego podzbioru na innym procesorze.
@@ -443,7 +448,7 @@ uruchomienia każdego podzbioru na innym procesorze.
 \textbf{Proces} najprościej definiowany jest jako program, który jest w trakcie wykonywania. Pod pojęciem procesu zawiera
 się jednak wiele mechanizmów, przy pomocy których system operacyjny zarządza wykonywaniem programu.
 System operacyjny przydziela każdemu nowemu procesowi zasoby m.in. odrębny obszar pamięci operacyjnej, nadaje
-unikatowy numer PID~(process identifier), kontroluje stan procesu oraz zarządza plikami, z których korzysta proces \cite{programowanie-rozproszone-i-rownolegle}.
+unikatowy numer PID~(ang. process identifier), kontroluje stan procesu oraz zarządza plikami, z których korzysta proces \cite{programowanie-rozproszone-i-rownolegle}.
 
 \textbf{Wątek} (ang. thread) jest częścią procesu. Jest to niezależny strumień instrukcji, który uruchamiany jest przez system operacyjny.
 Na jeden proces najczęściej składa się wiele strumieni instrukcji. Instrukcje składające się na wątek są wykonywane sekwencyjnie.
@@ -459,7 +464,8 @@ wymiennie z określeniem rdzeń logiczny. Wątek w znaczeniu rdzenia logicznego 
 \textbf{Proces sekwencyjny} $P$ charakteryzuje się tym, że każda kolejna instrukcja $i$ wykonywana jest dopiero wtedy, gdy zakończy
 się wykonywanie poprzedniej. Kolejność wykonywania instrukcji jest jednoznacznie określona, dlatego proces sekwencyjny
 określany jest jako pojedynczy ciąg instrukcji \cite{wprowadzenie-do-obliczen-rownoleglych}. W przypadku procesu sekwencyjnego
-wątek nie jest częścią procesu, natomiast jest z nim utożsamiany \cite{skrypt}.
+wątek nie jest częścią procesu, natomiast jest z nim utożsamiany \cite{skrypt}. Schemat przykładowego procesu sekwencyjnego
+przedstawiony jest na rysunku \ref{fig:sequential}.
 
 \begin{figure}[H]
     \centering
@@ -486,8 +492,9 @@ Rysunek \ref{fig:concurrent} przedstawia jedną z wielu możliwych realizacji pr
 \end{figure}
 
 \textbf{Procesy wykonywane w przeplocie} są procesami współbieżnymi, w których wątki uruchamiane są naprzemiennie. Podczas wykonywania procesu $P_1$
-następuje wstrzymanie procesu $P_2$ Gdy przerywane jest działanie procesu $P_1$ to przez pewien czas wykonywany
+następuje wstrzymanie procesu $P_2$. Gdy przerywane jest działanie procesu $P_1$ to przez pewien czas wykonywany
 jest proces $P_2$. Metoda przeplotu pozwala na zastosowanie współbieżności w procesorach jednordzeniowych.
+Rysunek \ref{fig:overlapping} prezentuje schemat procesów wykonywanych w przeplocie.
 
 \begin{figure}[H]
     \centering
@@ -496,9 +503,10 @@ jest proces $P_2$. Metoda przeplotu pozwala na zastosowanie współbieżności w
     \label{fig:overlapping}
 \end{figure}
 
-\textbf{Proces równoległy} jest szczególnym rodzajem procesu współbieżnego, w którym wątki uruchamiane są jednocześnie. Wątki mogą zostać
-rozdzielone między różne rdzenie procesora -- wtedy konieczne jest wykorzystanie procesora z kilkoma rdzeniami. Inną możliwością jest zastosowanie architektury
-rozproszonej. Wówczas wątki dzielone są między zbiór komputerów, które połączone są ze sobą siecią. Proces równoległy nazywany jest wtedy rozproszonym.
+\textbf{Proces równoległy} jest szczególnym rodzajem procesu współbieżnego, w którym wątki uruchamiane są jednocześnie. Jeśli wątki mają zostać
+rozdzielone między różne rdzenie procesora, wówczas konieczne jest wykorzystanie procesora z kilkoma rdzeniami. Inną możliwością jest zastosowanie architektury
+rozproszonej. W takiej sytuacji wątki dzielone są między zbiór komputerów, które połączone są ze sobą siecią. Proces równoległy nazywany jest wtedy rozproszonym.
+Na rysunku \ref{fig:parallel} przedstawione zostały procesy równoległe.
 
 \begin{figure}[H]
     \centering
@@ -545,67 +553,69 @@ tworzone są zgodnie z kilkoma wzorcami, które łączone są ze sobą w celu st
 W tym rozdziale opisane zostały wybrane wzorce programowania równoległego.
 
 \subsubsection{Wzorzec Master-Slave}
-Wzorzec inaczej nazywany jest wzorcem Manager-Worker. Wątek, który nazywany jest zarządcą (Master/Manager)
-definiuje zadania i rozdziela je pomiędzy wykonawców (Worker/Slave). Gdy wykonawca zrealizuje zadanie, przesyła
+Wzorzec \textit{Master-Slave}, zaprezentowany na rysunku \ref{fig:master-slave}, inaczej nazywany jest wzorcem \textit{Manager-Worker}. Wątek, który nazywany jest zarządcą (ang. master/manager)
+definiuje zadania i rozdziela je pomiędzy wykonawców (ang. worker/slave). Gdy wykonawca zrealizuje zadanie, przesyła
 otrzymane wyniki zarządcy, którego zadaniem jest scalić wszystkie zgromadzone wyniki w jedno rozwiązanie problemu.
-Wzorzec nie sprawdza się w problemach o dużym rozdrobnieniu zadań. Wówczas dochodzi do sytuacji, w której wykonawcy realizują poszczególne zadania
+Wzorzec nie sprawdza się w problemach o~dużym rozdrobnieniu zadań. Wówczas dochodzi do sytuacji, w której wykonawcy realizują poszczególne zadania
 szybciej, niż zarządca jest w stanie je generować i rozdzielać \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.5\textwidth]{patterns-master-slave.pdf}
-    \caption{Wzorzec Master-Slave. Źródło: Opracowanie własne.}
+    \caption{Wzorzec \textit{Master-Slave}. Źródło: Opracowanie własne.}
     \label{fig:master-slave}
 \end{figure}
 
 \subsubsection{Wzorzec Fork-Join}
-Wzorzec Fork-Join to jeden z najczęściej stosowanych wzorców. Wykonywanie programu rozpoczyna się
+Wzorzec \textit{Fork-Join} to jeden z najczęściej stosowanych wzorców. Wykonywanie programu rozpoczyna się
 w ramach jeden wątku głównego. W momencie, gdy w kodzie programu pojawia się instrukcja, która wymaga
-równoległego przetwarzania, tworzone są dodatkowe wątki poboczne. Dopóki wszystkie
+równoległego przetwarzania, tworzone są dodatkowe wątki poboczne. Sytuacja ta zaprezentowana jest na rysunku \ref{fig:fork-join}. Dopóki wszystkie
 wątki poboczne nie zakończą równoległej pracy i nie zostaną zniszczone, wątek główny nie może wznowić wykonywania
 sekwencyjnej części kodu. Etap ,,fork" polega na ustaleniu argumentów, które następnie otrzymuje każdy wątek.
 Etap ,,join" łączy wyniki po zakończeniu pracy wszystkich wątków równoległych. Etapy ,,fork" i ,,join"
-mogę wykonywane być dowolną ilość razy. \cite{parallel-design-patterns}.
+mogę wykonywane być dowolną liczbę razy \cite{parallel-design-patterns}.
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.6\textwidth]{patterns-fork-join.pdf}
-    \caption{Wzorzec Fork-Join. Źródło: Opracowanie własne.}
+    \caption{Wzorzec \textit{Fork-Join}. Źródło: Opracowanie własne.}
     \label{fig:fork-join}
 \end{figure}
 
 \subsubsection{Wzorzec Map-Reduce}
-Wzorzec Map-Reduce jest podobny do wzorca Fork-Join. Dane wejściowe są przetwarzane równolegle przez wiele wątków.
+Wzorzec \textit{Map-Reduce} jest podobny do wzorca \textit{Fork-Join} \ref{fig:fork-join}. Dane wejściowe są przetwarzane równolegle przez wiele wątków.
 Następnie wszystkie uzyskane wyniki są łączone, aż~do~momentu uzyskania jednego rozwiązania.
 W działaniu obydwa wzorce są prawie identycznie, jednak wywodzą się z różnych pomysłów.
 Idea mapowania pochodzi z technik stosowanych w~funkcjonalnych językach programowania.
 Kilka mapowań może być połączonych w łańcuchy składające się na większe funkcje.
 Etapy ,,map" i ,,reduce" są od siebie bardziej niezależne niż etapy ,,fork" i ,,join".
 Mapowanie może występować bez redukcji, a redukcja bez mapowania~\cite{parallel-design-patterns}.
+Graficzne przedstawienie wzorca \textit{Map-Reduce} zaprezentowane jest na rysunku \ref{fig:map-reduce}.
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.4\textwidth]{patterns-map-reduce.pdf}
-    \caption{Wzorzec Map-Reduce. Źródło: Opracowanie własne.}
+    \caption{Wzorzec \textit{Map-Reduce}. Źródło: Opracowanie własne.}
     \label{fig:map-reduce}
 \end{figure}
 
 \subsubsection{Wzorzec Work Pool}\label{work-pool}
-Wzorzec puli zadań (Work Pool) wykorzystywany jest w algorytmach, w których zadania generowane są dynamicznie
+Wzorzec puli zadań \textit{Work Pool} wykorzystywany jest w algorytmach, w których zadania generowane są dynamicznie
 lub gdy istotnie różnią się złożonością. Zadania przechowywane są w strukturze danych, która dostępna
 jest w pamięci współdzielonej. Najczęściej wykorzystywane struktury to lista, kolejka priorytetowe
 czy tablica z haszowaniem. W momencie, gdy wątek zakończył obliczanie zadania, dostarczane jest mu
 kolejne zadanie przechowywane w strukturze \cite{wprowadzenie-do-obliczen-rownoleglych}.
+Rysunek \ref{fig:work-pool} prezentuje schemat z kolejką zdań i trzema wątkami.
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.55\textwidth]{patterns-work-pool.pdf}
-    \caption{Wzorzec Work Pool. Źródło: Opracowanie własne.}
+    \caption{Wzorzec \textit{Work Pool}. Źródło: Opracowanie własne.}
     \label{fig:work-pool}
 \end{figure}
 
 \subsubsection{Wzorzec Pipeline}
-Wzorzec Pipeline polega na potokowym przetwarzaniu danych. Nazywany jest również metodą producenta
+Wzorzec \textit{Pipeline}, przedstawiony na rysunku \ref{fig:pipeline}, polega na potokowym przetwarzaniu danych. Nazywany jest również metodą producenta
 i konsumenta. Strumień danych przekazywany jest do kolejnych wątków, które modyfikują oryginalny strumień.
 Każdy z wątków wykonuje inny rodzaj obliczeń, które tworzą etapy potoku. Dane wyjściowe jednego etapu
 stają się danymi wejściowymi kolejnego etapu. Stosowanie wzorca jest efektywne, jeśli czasy realizacji
@@ -614,7 +624,7 @@ poszczególnych etapów są~podobne \cite{wprowadzenie-do-obliczen-rownoleglych}
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.75\textwidth]{patterns-pipeline.pdf}
-    \caption{Wzorzec Pipeline. Źródło: Opracowanie własne.}
+    \caption{Wzorzec \textit{Pipeline}. Źródło: Opracowanie własne.}
     \label{fig:pipeline}
 \end{figure}
 
@@ -639,13 +649,13 @@ konieczność zaimplementowania przekazywania danych. Współdzielenie danych je
 
 Autorzy szczegółowo opisują różnice pomiędzy równoległością zadań, równoległością danych oraz równoległością hybrydową. Równoległość zadań określana jest
 jako dynamiczne rozdzielanie węzłów decyzyjnych między procesory, w celu kontynuowania ich rozbudowy. Wadą takiego podejścia jest konieczność replikacji całego zbioru
-treningowego lub, alternatywnie, zapewnienie dużej ilości komunikacji pomiędzy procesorami. Równoległość danych przedstawiona jest jako wykonywanie tego samego zbioru instrukcji
+treningowego lub, alternatywnie, zapewnienie częstej komunikacji pomiędzy procesorami. Równoległość danych przedstawiona jest jako wykonywanie tego samego zbioru instrukcji
 algorytmu przez wszystkie zaangażowane procesory. Zbiór treningowy zostaje podzielony pionowo lub poziomo. Podział poziomy (horyzontalny) polega na na takim podziale danych między procesory, że
 każdy z nich odpowiedzialny jest za inny zestaw przykładów ze zbioru treningowego. Podział pionowy (wertykalny) rozdziela przetwarzanie poszczególnych atrybutów między procesory.
 
 Autorzy zwracają uwagę, że przetwarzanie z pionowym podziałem danych narażone jest na~wystąpienie nierównowagi obciążenia.
 Równoległość hybrydowa scharakteryzowana jest jako połączenie równoległości zadań oraz danych. Dla węzłów, które muszą przetworzyć dużą liczbę przykładów, wykorzystywana
-jest równoległość danych. W ten sposób unika się problemów związanych z nierównomiernym obciążeniem. W przypadku węzłów z przypisaną mniejszą ilością przykładów
+jest równoległość danych. W ten sposób unika się problemów związanych z nierównomiernym obciążeniem. W przypadku węzłów z przypisaną mniejszą liczbą przykładów
 czas, potrzebny do komunikacji może być większy niż czas potrzebny do przetwarzania przykładów. Zastosowanie równoległości zadań w takie sytuacji pozwala uniknąć dysproporcji.
 
 W kolejnej części artykułu przestawiona została implementacja równoległej konstrukcji drzewa decyzyjnego. Program został stworzony do wykonywania w środowisku pamięci
@@ -677,6 +687,10 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
     \begin{center}
 
         \begin{longtable}{| c | p{0.19\textwidth} | p{0.62\textwidth} |}
+            \caption{Zestawienie artykułów poruszających tematykę\\ równoległości w algorytmach drzew decyzyjnych}
+            \label{table:articles-parallel-decision-tree}
+            \endfirsthead
+            \endhead
 
             \hline
             
@@ -700,11 +714,11 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
 
             \cite{parallel-hoeffding-decision-tree} &
 
-            węzły Hoeffdinga, architektura Master-Slave &
+            węzły Hoeffdinga, architektura \textit{Master-Slave} &
 
             Autorzy artykułu zdecydowali się na zrównoleglanie tylko fragmentów algorytmu tj. szukania
             najlepszego atrybuty do podziału węzła. Zadania przydzielane przez główny procesor
-            (master) innym procesorom (slave) polegają na~obliczenia zysku informacyjnego dla określonego
+            (\textit{master}) innym procesorom (\textit{slave}) polegają na~obliczenia zysku informacyjnego dla określonego
             atrybutu. Zastosowana architektura oraz zrównoleglanie tylko wyszukiwania atrybutów skutkuje
             jednak w niskiej skalowalności. Pomimo tego, testy wykazały, że przyspieszenie działania algorytmu
             jest dość efektywne. Dzięki zastosowaniu nierówności Hoeffdinga, do podziału drzewa nie muszą być
@@ -717,7 +731,7 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
             równoległość w węźle, duże zbiory danych &
 
             W artykule przedstawiono algorytm ParDTLT. Algorytm jest równoległą wersją algorytmu
-            DTLT (Decision Trees from Large Training sets), który nie wymaga ładowania w~całości wszystkich danych
+            DTLT (ang. Decision Trees from Large Training sets), który nie wymaga ładowania w~całości wszystkich danych
             treningowych do pamięci komputera. ParDTLT oparty jest na idei sekwencyjnej budowy struktury
             drzewa oraz równoległym przetwarzaniu danych w każdym węźle. W danym czasie wszystkie procesory
             dostępne są dla jednego węzła. W węźle uprzywilejowanym tworzona jest kolejka atrybutów, dla
@@ -745,10 +759,10 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
             
             \cite{research-parallel-map-reduce} &
 
-            algorytm ID3, wzorzec Map-Reduce &
+            algorytm ID3, wzorzec \textit{Map-Reduce} &
 
             W pracy został zaprezentowany równoległy algorytm do budowy drzewa decyzyjnego, 
-            który oparty jest na modelu Map-Reduce. W pierwszej części, przedstawione zostały dwie główne metody podziału
+            który oparty jest na modelu \textit{Map-Reduce}. W pierwszej części, przedstawione zostały dwie główne metody podziału
             danych -- metoda dynamiczna i statyczna. Podobnie jak w \cite{parallel-implementation-decision-tree}, w ramach
             statycznej metody podziału danych wyróżniony został podział pionowy i poziomy. 
             Autorzy proponują zmodyfikowaną implementację algorytmu ID3 z wykorzystaniem biblioteki \textit{MapReduce}.
@@ -758,9 +772,6 @@ Tabela \ref{table:articles-parallel-decision-tree} zawiera odnośniki do tytuł�
             w efektywny sposób przetwarzać duże ilości danych.\\
 
             \hline
-
-        \caption{Zestawienie artykułów poruszających tematykę\\ równoległości w algorytmach drzew decyzyjnych}
-        \label{table:articles-parallel-decision-tree}
  
         \end{longtable}
 
@@ -779,15 +790,15 @@ implementacje algorytmu.
 
 \subsection{Implementacja}
 
-Jako narzędzie został wybrany język programowania Java, dlatego implementacja opiera się na podejściu
-obiektowym. Język Java oferuje wiele możliwości programowania współbieżnego i równoległego. W terminologii Java
-pojęcie wątek nabiera kolejnego znaczenia. Programista ma możliwość tworzenia wielu wątków, która zarządzane są
-przez JVM (Java Virtual Machine) w celu równoległego wykonywania kodu. Inne dostępne mechanizmy to synchronizacja,
-blokady (locks), semafory, interfejsy Callable oraz Future, zmienne typu \textit{atomic} czy framework Executor.
+Jako narzędzie został wybrany język programowania \textit{Java}, dlatego implementacja opiera się na podejściu
+obiektowym. Język \textit{Java} oferuje wiele możliwości programowania współbieżnego i równoległego. W terminologii \textit{Java}
+pojęcie wątek nabiera kolejnego znaczenia. Programista ma możliwość tworzenia wielu wątków, które zarządzane są
+przez JVM (ang.~Java Virtual Machine) w celu równoległego wykonywania kodu. Inne dostępne mechanizmy to~synchronizacja,
+blokady (ang. locks), semafory, interfejsy \textit{Callable} oraz \textit{Future}, zmienne typu \textit{atomic} czy framework \textit{Executor}.
 Podczas fazy projektowania została przeprowadzona analiza, które z mechanizmów będą konieczne i pomocne
-w implementacji. Ostatecznie w programie wykorzystane zostały głownie interfejsy Callable, Future oraz framework Executor.
+w implementacji. Ostatecznie w programie wykorzystane zostały głównie interfejsy \textit{Callable}, \textit{Future} oraz framework \textit{Executor}.
 
-Kod został podzielony na pakiety (package), które grupują klasy zgodnie z ich przeznaczeniem oraz funkcjonalnością. Zostało wydzielonych pięć pakietów:
+Kod został podzielony na pakiety (ang. package), które grupują klasy zgodnie~z~ich przeznaczeniem oraz funkcjonalnością. Zostało wydzielonych pięć pakietów:
 \verb|classifier|, \verb|concurrent|, \verb|table|, \verb|tree| oraz \verb|utils|. Poniżej omówione zostaną tylko wybrane klasy, które są kluczowe z
 punktu widzenia analizy równoległości oraz wydajności programu.
 
@@ -795,7 +806,7 @@ punktu widzenia analizy równoległości oraz wydajności programu.
 
 Jedną z głównych klas jest klasa \verb|DecisionTable|. Zawiera ona macierz \verb|String[][] table|, która przetrzymuje rekordy ze zbioru danych,
 na podstawie których utworzone zostaje drzewo decyzyjne. W celu odnalezienia atrybutu dzielącego niezbędne jest wykonanie wielu obliczeń, które wymagają 
-wstępnego uporządkowania danych np. odnalezienia indeksów w tabeli, w których występują takie same wartości dla wybranego atrybutu $a_i$. 
+wstępnego uporządkowania danych np. odnalezienia indeksów w tabeli, w~których występują takie same wartości dla wybranego atrybutu $a_i$. 
 Dostęp do części z uporządkowanych danych potrzebny jest kilkukrotnie w różnych fragmentach algorytmu. Z tego powodu zdecydowano o utworzeniu metadanych.
 Koncepcja metadanych dotyczących zbioru danych opiera się na jednokrotnym przetworzeniu całej tabeli z rekordami i zgromadzeniu wszystkich niezbędnych
 informacji, które w późniejszej fazie algorytmu będą koniecznie do ustalenia atrybutu dzielącego.
@@ -807,7 +818,8 @@ takim samym jak indeks kolumny w tablicy \verb|table| zawierającej wszystkie wa
 \verb|attributesValues| na miejscu o indeksie $0$.
 
 Klasa \verb|AttributeValues| rozszerza klasę typu \verb|HashSet<AttributeValue>| a więc jest zbiorem obiektów typu \verb|AttributeValue|.
-Zbiór zawiera tyle elementów, ile istnieje unikalnych wartości dla każdego atrybutu. Zadaniem klasy \verb|AttributeValue| jest przetrzymywanie informacji
+Zbiór zawiera tyle elementów, ile istnieje unikalnych wartości dla każdego atrybutu. Zadaniem klasy \verb|AttributeValue|, której szkielet przestawiony jest na
+listingu \ref{lst:attribute-value-class}, jest przetrzymywanie informacji
 powiązanych z jedną wartością atrybutu.
 
 \begin{lstlisting}[language=java, caption=Skrócona implementacja klasy AttributeValue,frame=single,label={lst:attribute-value-class}]
@@ -815,7 +827,8 @@ public class AttributeValue {
 
     private final String value;
     private final Set<Integer> indices;
-    private final Map<String, Integer> decisionFrequenciesPerValue;
+    private final Map<String, Integer>
+                            decisionFrequenciesPerValue;
 
     public int getTotalFrequency() {...}
 
@@ -848,7 +861,7 @@ System.out.println(attributesValues[0].toString());
 #                   decisionFrequenciesPerValue={c3=2, c2=1} ) ]
 \end{lstlisting}
     
-Tak przygotowane metadane zapewniają dostęp do wszystkich potrzebnych wartości, aby obliczyć zrównoważony zysk informacji dla każdego
+Tak przygotowane metadane zapewniają dostęp do wszystkich potrzebnych wartości, aby~obliczyć zrównoważony zysk informacji dla każdego
 atrybutu znajdującego się w tabeli \verb|table|.
 
 W pakiecie \verb|tree| znajduje się kolejna istotna klasa \verb|Node|. Klasa odwzorowuje węzeł drzewa decyzyjnego.
@@ -905,15 +918,15 @@ W metodzie tworzona jest lista zadań obliczenia zrównoważonego przyrostu info
 Zadanie tworzone jest osobno dla każdego atrybutu i zdefiniowane jest w klasie \verb|ComputeGainRatioTask|, która implementuje interfejs \verb|Callable|.
 Klasa w konstruktorze przyjmuje argumenty zawierające dane niezbędne do wykonania obliczeń:
 indeks atrybutu, dla którego definiowane jest zadanie, lista częstości wystąpień
-wartości klas decyzyjnych w tabeli decyzyjnej, ilość rekordów w tabeli decyzyjnej oraz zbiór obiektów typu \verb|AttributeValue|
+wartości klas decyzyjnych w tabeli decyzyjnej, liczba rekordów w tabeli decyzyjnej oraz zbiór obiektów typu \verb|AttributeValue|
 tworzących metadane o przetwarzanym atrybucie. W klasie zdefiniowane są 4 prywatne metody, które służą obliczeniu wartości informacji \verb|double getInfo()|,
 przyrostu informacji \verb|double getGain()|, wyznaczeniu informacji o podziale \verb|double getSplitInfo()|
 oraz obliczeniu zrównoważonego przyrostu informacji \verb|getGainRatio()|. Jedna metoda publiczna \verb|GainRatioResult call()|, której
 implementacja wymuszona jest przez interfejs \verb|Callable|, umożliwia start wykonywania zadania przez wątek, któremu zostało ono przydzielone.
 
 Klasa \verb|ExecutorService| udostępnia metodę przyjmującą jako parametr listę zadań, które mają zostać wykonane równolegle. Podczas tworzenia instancji
-klasy \verb|ExecutorService| należy zdefiniować ilość wątków, które będą przetwarzać listę zadań. Implementacja opiera się na wzorcu Work Pool \ref{work-pool}.
-Zadania z listy przekazywane są wolnym wątkom do momentu, aż wszystkie zadania zostaną rozdzielone i wykonane. Istotny jest fakt, iż dostęp do rezultatów
+klasy \verb|ExecutorService| należy zdefiniować liczbę wątków, które będą przetwarzać listę zadań. Implementacja opiera się na~wzorcu \textit{Work Pool} \ref{work-pool}.
+Zadania z listy przekazywane są wolnym wątkom do momentu, aż~wszystkie zadania zostaną rozdzielone i wykonane. Istotny jest fakt, iż dostęp do rezultatów
 jest dostępny dopiero wtedy, gdy wszystkie wątki zakończą prace. Taki mechanizm nazywany jest blokującym. W momencie, gdy wszystkie wyniki zgromadzone
 zostaną w formie listy, wybierany jest ten atrybut, dla którego obliczony zrównoważony przyrost informacji jest największy. W ten sposób odnajdywany jest atrybut dzielący.
 
@@ -952,7 +965,7 @@ Wówczas algorytm rekurencyjnie powraca do pominiętych węzłów w celu stworze
 \subsection{Uruchamianie programu}
 
 Program został napisany w języku \textit{Java} w wydaniu 11, dlatego aby go uruchomić, konieczna jest instalacja środowiska \textit{Java Runtime Environment (JRE)}
-w wersji 11 lub wyższej. Wszystkie pliki z kodem źródłowym zostały skompilowane i na ich podstawie stworzony został wykonywalny plik archiwum Java JAR.
+w wersji 11 lub wyższej. Wszystkie pliki z kodem źródłowym zostały skompilowane i na ich podstawie stworzony został wykonywalny plik archiwum \textit{Java JAR}.
 
 Program został sparametryzowany tak, aby mógł zostać uruchomiony w każdym wariancie implementacji algorytmu ID3. Niezbędne jest również
 podanie ścieżki do pliku ze zbiorem danych. Argumenty pozwalają na ustawianie następujących wartości:
@@ -962,7 +975,7 @@ podanie ścieżki do pliku ze zbiorem danych. Argumenty pozwalają na ustawianie
     \item \verb|--data-set| -- ścieżka do pliku ze zbiorem danych,
     \item \verb|--delimiter| -- separator wartości w zbiorze danych,
     \item \verb|--output-file| -- ścieżka do pliku, gdzie zapisane zostaną dane o wydajności wykonania programu potrzebne do analizy,
-    \item \verb|--threads| -- ilość użytych wątków,
+    \item \verb|--threads| -- liczbę użytych wątków,
     \item \verb|--test-ratio| -- udział procentowy danych losowo wybieranych do zbioru testowego,
     \item \verb|--train-ratio| -- udział procentowy danych losowo wybieranych do zbioru treningowego, wartość wraz z \verb|--test-ratio| muszą być równe 1,
     \item \verb|--type| -- wersja algorytmu.
@@ -986,9 +999,9 @@ Ustawienie argumentu na wartość \verb|PARALLEL_NODES| spowoduje uruchomienia a
 \newpage
 \section{Analiza wyników}
 
-Rozdział szósty zawiera opis analizy algorytmów pod kątem ich wydajności. Poruszone zostały
+Rozdział piąty zawiera opis analizy algorytmów pod kątem ich wydajności. Poruszone zostały
 tematy związane z czasem trwania poszczególnych wykonań algorytmu, zużyciem pamięci RAM, pamięci
-przydzielonej procesowi i ilości wykorzystanych wątków. Analiza oparta jest na danych zgromadzonych
+przydzielonej procesowi i liczbę wykorzystanych wątków. Analiza oparta jest na danych zgromadzonych
 dzięki przeprowadzonym testom. Wyniki pomiarów zostały przedstawione w formie
 wykresów stworzonych przy użyciu języka \textit{Python} oraz biblioteki \textit{Plotnine}, która umożliwia
 korzystanie z pakietu \textit{ggplot2}.
@@ -1005,8 +1018,8 @@ do zatrzymania programy zostały wyłączone.
 
 Dodatkową techniką, która miała na celu zmniejszenie wpływu zewnętrznych czynników na rezultaty testów,
 było zastosowanie uśredniania wyników. Dla każdej konfiguracji parametrów program został uruchomiony kilkukrotnie.
-Zebrane wyniki zostały uśrednione, aby wygenerowane wykresy stały się przez to bardzo wiarygodne.
-Ręczne uruchamianie programu z wiersza poleceń jest mało optymalne, dlatego cały proces zbierania rezultatów testów
+Zebrane wyniki zostały uśrednione, aby~wygenerowane wykresy stały się przez to bardzo wiarygodne.
+Ręczne uruchamianie programu z~wiersza poleceń jest mało optymalne, dlatego cały proces zbierania rezultatów testów
 został zautomatyzowany. W celu wielokrotnego uruchomienia programu dla różnych parametrów, zostały utworzone
 skrypty w języku \textit{Bash}.
 
@@ -1017,7 +1030,7 @@ skrócenie czasu budowy drzewa decyzyjnego. Analizowanie wydajności w pierwszej
 program jest w stanie dostarczać poprawne wyniki.
 W celu walidacji poprawności kluczowych elementów implementacji, program został przetestowany za
 pomocą testów jednostkowych. Klasy zawierające logikę, która wpływa na strukturę drzewa, zostały przetestowane
-na danych, dla których znany był poprawy kształt drzewa. Dzięki uzyskaniu pozytywnych wyników
+na danych, dla których znany był poprawny kształt drzewa. Dzięki uzyskaniu pozytywnych wyników
 testowania algorytmu pod względem poprawności, podczas analizy kluczowej dla tematu pracy, cała
 uwaga została skupiona już tylko na badaniu wydajności.
 W dalszej części rozdziału omówione zostały kryteria testów przeprowadzonych pod kątem wydajności
@@ -1030,25 +1043,25 @@ które ułatwiają testowanie ich poprawności. Dopiero w momencie, gdy algorytm
 uruchomiony dla rzeczywistych danych, istnieje możliwość sprawdzenia, czy program jest w stanie
 efektywnie przetwarzać dane i dostarczyć ostateczne rozwiązanie. 
 Rysunek \ref{fig:analysis} przedstawia, jak zmienia się całkowity czas potrzebny na konstrukcje
-klasyfikatora, w zależności od ilości rekordów w zbiorze danych. Na wykresie ujęto trzy rodzaje algorytmu:
+klasyfikatora, w zależności od liczby rekordów w zbiorze danych. Na wykresie ujęto trzy rodzaje algorytmu:
 wersja sekwencyjna, zrównoleglanie atrybutów oraz zrównoleglanie węzłów.
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.9\textwidth]{analysis.pdf}
-    \caption{Zależność czasu od ilości rekordów.\\Źródło: Opracowanie własne.}
+    \caption{Zależność czasu od liczby rekordów.\\Źródło: Opracowanie własne.}
     \label{fig:analysis}
 \end{figure}
 
 Przy niewielkiej liczbie rekordów czas trwania wszystkich trzech implementacji algorytmu ID3 jest prawie identyczny.
 Wraz z rosnącą liczbą rekordów, najlepsze rezultaty osiąga algorytm, gdzie zastosowano równoległość węzłów. Zastosowanie
-algorytmu z równoległością atrybutów nie przynosi znaczących korzyści. Czas budowy klasyfikatora, bez względu na ilość rekordów,
+algorytmu z równoległością atrybutów nie przynosi znaczących korzyści. Czas budowy klasyfikatora, bez względu na liczbę rekordów,
 praktycznie nie różni się od czasu osiąganego dla implementacji sekwencyjnej. 
 
 Po przeanalizowaniu rozwiązania z równoległym przetwarzaniem atrybutów, zostały wyciągnięte następujące wnioski.
 Implementacja jest mało efektywna bez względu na rodzaj i wielkość zbioru danych. Prawdopodobną przyczyną niskiej
 wydajności implementacji jest zastosowanie konceptu metadanych. Jak opisano w rozdziale \ref{common-code-blocks}, celem tworzenia
-metadanych było zredukowanie ilości powtarzanych obliczeń. Wiąże się to z tym, że najbardziej obciążające obliczenia
+metadanych było zredukowanie liczby powtarzanych obliczeń. Wiąże się to z tym, że najbardziej obciążające obliczenia
 dokonywane są w momencie tworzenia metadanych. Z tego powodu, obliczanie zrównoważonego przyrostu informacji dla każdego
 atrybutu jest działaniem mało złożonym obliczeniowo. Koszt powoływania do życia wątków oraz obsługi równoległości jest większy
 niż korzyść płynąca z równoległego przetwarzania atrybutów.
@@ -1063,12 +1076,12 @@ nawet w przypadku tworzenia metadanych.
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.9\textwidth]{analysis-start.pdf}
-    \caption{Zależność czasu od ilości rekordów przy małym\\obciążeniu procesora. Źródło: Opracowanie własne.}
+    \caption{Zależność czasu od liczby rekordów przy małym\\obciążeniu procesora. Źródło: Opracowanie własne.}
     \label{fig:analysis-start}
 \end{figure}
 
 Rysunek \ref{fig:analysis-start} ponownie prezentuje zależność czasu wykonania od
-ilości rekordów, jednak na przykładzie zbiorów danych o małych rozmiarach. Ilość rekordów wacha się od 120 do 140000. 
+liczby rekordów, jednak na~przykładzie zbiorów danych o małych rozmiarach. Liczba rekordów wacha się od 120 do~140000. 
 Im mniej rekordów jest przetwarzanych, tym bardziej efektywny jest algorytm sekwencyjny.
 
 Kolejną składową wpływającą na wielkość zbioru danych jest liczba atrybutów. Im więcej atrybutów posiada
@@ -1079,30 +1092,30 @@ Zaprezentowane wyniki zostały utworzone na podstawie zbiorów danych, z któryc
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.9\textwidth]{analysis-attributes.pdf}
-    \caption{Zależność czasu od ilości atrybutów.\\Źródło: Opracowanie własne.}
+    \caption{Zależność czasu od liczby atrybutów.\\Źródło: Opracowanie własne.}
     \label{fig:analysis-attributes}
 \end{figure}
 
-Podobnie jak w przypadku zwiększania ilości rekordów, dla niewielkiej ilości atrybutów, algorytm ze
-zrównoleglaniem węzłów okazał się być mniej efektywny niż pozostałe. Moment wyrównania
-przypada na około 20 atrybutów. Przy stopniowym zwiększaniu ilości atrybutów widać, że
-zachodzą różnice w stosunku do zwiększania ilości rekordów.
+Podobnie jak w przypadku zwiększania liczby rekordów, dla niewielkiej liczby atrybutów, algorytm ze
+zrównolegleniem węzłów okazał się być mniej efektywny niż pozostałe. Moment wyrównania
+przypada na około 20 atrybutów. Przy stopniowym zwiększaniu liczby atrybutów widać, że
+zachodzą różnice w stosunku do zwiększania liczby rekordów.
 Na wykresie można zauważyć, że wydajność algorytmów równoległych
 nie ulega wyraźniej poprawie. Przy 130 atrybutach czas wykonania programu, gdzie równolegle przetwarzane są węzły
 jest niewiele lepszy od pozostałych. W celu wyciągnięcia wniosków, konieczne było sprawdzenie jak kształtuje się
-wykres dla większych ilości atrybutów. Znalezienie zbiorów danych nadających się do testowania algorytmu ID3, w których ilość
-atrybutów będzie wzrastała proporcjonalnie, nie jest łatwym zadaniem. Z tego powodu, kolejny wykres przedstawia zależności tylko dla
-jednego, największego pod względem ilości atrybutów zbioru danych, który udało się uzyskać do celów badania (13 200 atrybutów).
+wykres dla większej liczby atrybutów. Znalezienie zbiorów danych nadających się do~testowania algorytmu ID3, w których liczba
+atrybutów będzie wzrastała proporcjonalnie, nie jest łatwym zadaniem. Z tego powodu, wykres na rysunku \ref{fig:analysis-attributes-bar-plot} przedstawia zależności tylko dla
+jednego, największego pod względem liczby atrybutów zbioru danych, który udało się uzyskać do celów badania (13 200 atrybutów).
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.9\textwidth]{analysis-attributes-bar-plot.pdf}
-    \caption{Zależność czasu od ilości atrybutów.\\Źródło: Opracowanie własne.}
+    \caption{Czas wykonania programu dla danych\\ o 13 200 atrybutach. Źródło: Opracowanie własne.}
     \label{fig:analysis-attributes-bar-plot}
 \end{figure}
 
-Powyższy rysunek daje podstawy do stwierdzenia, że żadna ze stworzonych implementacji równoległych nie jest optymalna,
-gdy obciążenie procesora spowodowane jest dużą ilością atrybutów.
+Wykres na rysunku \ref{fig:analysis-attributes-bar-plot} daje podstawy do stwierdzenia, że żadna ze stworzonych implementacji równoległych nie jest optymalna,
+gdy obciążenie procesora spowodowane jest dużą liczbą atrybutów.
 
 \subsubsection{Ilość pamięci RAM oraz pamięci Heap Space}
 
@@ -1120,7 +1133,7 @@ Wyniki zaprezentowane są na rysunku \ref{fig:analysis-ram}.
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.9\textwidth]{analysis-ram.pdf}
-    \caption{Zależność czasu od ilości rekordów i dostępnej\\pamięci RAM. Źródło: Opracowanie własne.}
+    \caption{Zależność czasu od liczby rekordów i dostępnej\\pamięci RAM. Źródło: Opracowanie własne.}
     \label{fig:analysis-ram}
 \end{figure}
 
@@ -1133,18 +1146,18 @@ osiągniętych na komputerze z 8GB pamięci.
 Nie jest to jednak dowód na to, że zrównoleglanie węzłów jest bardziej efektywne
 na komputerze o słabszych parametrach. Mniejsza ilość pamięci RAM skutkuje dłuższym
 czasem wykonania algorytmu. Jak pokazano w pierwszej części analizy, stosowanie równoległości jest skuteczniejsze,
-gdy procesor jest bardziej obciążony. Z tego powodu, wykres sprawia wrażenie, że algorytm wykonywany na słabszym
+gdy procesor jest bardziej obciążony. Z tego powodu, wykres sprawia wrażenie, że algorytm wykonywany na~słabszym
 sprzęcie działa bardziej efektywnie.
 Dla każdego komputera można ustalić moment, w którym stosowanie równoległości przynosi korzyści. Jest to moment
 przecięcia się lini odpowiadającej wykonaniu równoległemu z linią odpowiadającą wykonaniom sekwencyjnym.
 Dla słabszego komputera moment ten przypada na około 120 tys. rekordów. Dla mocniejszego komputera
 jest to około 5 tys. rekordów.
 
-Kolejnym typem pamięci uwzględnionym podczas analizy wydajności jest pamięć nazywana stertą (\textit{Heap Space}). Jest to wydzielona
+Kolejnym typem pamięci uwzględnionym podczas analizy wydajności jest pamięć nazywana stertą (ang. Heap Space). Jest to wydzielona
 część pamięci RAM, która przydzielona jest maszynie wirtualnej \textit{Javy} w czasie jej startu.
 Podczas uruchomiania programu, napisanego w języku \textit{Java}, istnieje możliwość konfiguracji ilości
 pamięci RAM przydzielonej maszynie wirtualnej. Parametr \verb|-Xmx| umożliwia konfigurację maksymalnej
-wartości sterty (\textit{Heap Size}). Przykładowo dodając parametr \verb|-Xmx4096m|
+wartości sterty (ang. Heap Size). Przykładowo dodając parametr \verb|-Xmx4096m|
 maksymalna wartość \textit{Heap Size} wynosi 4096 megabajtów. Powiększanie \textit{Heap Size} ma sens, jeśli do pamięci programu
 ładowane są bardzo duże ilości danych. Jeśli wartość pozostanie na niskim poziomie, wówczas pamięć zostaje przepełniona, w wyniku czego
 program zostaje przerwany z powodu błędu typu \verb|java.lang.OutOfMemoryError|.
@@ -1152,7 +1165,7 @@ program zostaje przerwany z powodu błędu typu \verb|java.lang.OutOfMemoryError
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.9\textwidth]{analysis-heap-size.pdf}
-    \caption{Zależność czasu od wartości Heap Size.\\Źródło: Opracowanie własne.}
+    \caption{Zależność czasu od wartości \textit{Heap Size}.\\Źródło: Opracowanie własne.}
     \label{fig:analysis-heap-size}
 \end{figure}
 
@@ -1163,21 +1176,21 @@ przy niskiej wartości \textit{Heap Size}. Wraz ze wzrostem wartości \textit{He
 Może ono wynikać z tego, że uruchomianie maszyny wirtualnej \textit{Javy} z większą ilością przydzielonej pamięci, jest bardziej czasochłonnym procesem.
 
 \subsubsection{Liczba wątków}
-Ostatnim przeanalizowanym zagadnieniem był wpływ ilości tworzonych wątków na czas trwania
+Ostatnim przeanalizowanym zagadnieniem był wpływ liczby tworzonych wątków na czas trwania
 pracy programu. Podczas tej analizy, pojęcie wątek używane jest w kontekście wątków
 tworzonych w ramach maszyny wirtualnej \textit{Javy}. Każdy wątek tworzony przez \textit{JVM} związany jest
 z klasą \verb|java.lang.Thread|. Tworzenie instancji wymienionej klasy rozpoczyna cykl życia wątku.
 Dopuszczalne stany, w których może znajdować się wątek to m.in.: \verb|RUNNABLE|, 
-\verb|BLOCKED| czy \verb|WAITING|. Programista może zarządzać ilością wątków poprzez jawne tworzenie instancji
+\verb|BLOCKED| czy \verb|WAITING|. Programista może zarządzać liczbą wątków poprzez jawne tworzenie instancji
 klasy \verb|Thread| lub też może skorzystać z interfejsu \verb|Executor|, w ramach którego tworzone są pule wątków.
 
 Rysunek \ref{fig:analysis-threads} przedstawia wyniki testów przeprowadzonych pod kątem zmiennej
-ilości przydzielanych wątków.
+liczby przydzielanych wątków.
 
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.9\textwidth]{analysis-threads.pdf}
-    \caption{Zależność czasu od ilości przydzielonych wątków.\\Źródło: Opracowanie własne.}
+    \caption{Zależność czasu od liczby przydzielonych wątków.\\Źródło: Opracowanie własne.}
     \label{fig:analysis-threads}
 \end{figure}
 
@@ -1186,11 +1199,11 @@ mają zasoby sprzętowe, charakter oraz obciążenie programu.
 Zaleca się stosowanie liczby wątków równej lub trochę większej od liczby dostępnych rdzeni logicznych.
 Komputer, na którym przeprowadzano testy posiada 4 rdzenie fizyczne co w konsekwencji daje do
 dyspozycji 8 rdzeni logicznych. Na grafice \ref{fig:analysis-threads} widać, że
-zbyt mała ilość wątków istotnie wydłuża czas pracy programu.
-Podobnie zbyt duża ilość wątków opóźnia moment zakończenia pracy programu. Przyczyną takiej tendencji, 
+zbyt mała liczba wątków istotnie wydłuża czas pracy programu.
+Podobnie zbyt duża liczba wątków opóźnia moment zakończenia pracy programu. Przyczyną takiej tendencji, 
 są ograniczone zasoby systemu operacyjnego, które umożliwiają
 efektywne przetwarzanie tylko ograniczonej liczby równoległych operacji. Powoływanie do życia nowego wątku
-jest kosztowną operacją, dlatego tworzenie wątków w zbyt dużej jak i zbyt małej ilości, negatywnie wpływa
+jest kosztowną operacją, dlatego tworzenie wątków w~zbyt dużej jak i zbyt małej liczbie, negatywnie wpływa
 na efektywność programu.
 
 \subsection{Zaistniałe problemy}
@@ -1207,7 +1220,7 @@ Język \textit{Java} oferuje mechanizm usuwania nieużytków \textit{Garbage Col
 samodzielnie przydzielaniem jak i zwalnianiem pamięci. Za te czynności odpowiedzialny jest program nazywany \textit{Garbage Collector}.
 Podstawowe zadania programu to alokacja pamięci oraz odzyskiwanie jej dzięki usuwaniu obiektów, do których nie istnieją już referencje.
 Pomimo tego, iż programista nie jest bezpośrednio odpowiedzialny za zarządzanie pamięcią, istnieje kilka typów błędów w
-implementacji, które mogą powodować wycieki pamięci (\textit{Memory Leaks}). Wycieki powodują przepełnienie pamięci,
+implementacji, które mogą powodować wycieki pamięci (ang. Memory Leaks). Wycieki powodują przepełnienie pamięci,
 co skutkuje przerwaniem pracy programu.
 Dzięki użyciu narzędzi takich jak \textit{Java~VisualVM}~możliwe jest generowanie wykresów wykorzystania stosu
 w trakcie działania programu.
@@ -1219,7 +1232,7 @@ zajmowanej pamięci. Dodatkowym czynnikiem może być konieczność ładowania d
 Próbą zmniejszenia zużycia pamięci na stosie było zaimplementowanie współdzielenia danych. Zamiast duplikacji części rekordów,
 przekazywanych do węzłów potomnych, przekazywane były tylko numery indeksów, które dotyczyły wybranego węzła.
 Niestety zaimplementowane poprawki nie przyniosły pozytywnych rezultatów.
-Podejście dostarczania danych we fragmentach, które zaproponowane zostało w omówionym artykule \cite{parallel-algorithm-to-induce-decision-trees}
+Podejście dostarczania danych we fragmentach, które zaproponowane zostało w~omówionym artykule \cite{parallel-algorithm-to-induce-decision-trees}
 wydaje się być rozwiązaniem, które mogłoby pomóc pozbyć się problemu przeładowanej pamięci.
 
 \newpage
@@ -1239,19 +1252,19 @@ niż implementacja sekwencyjna.
 
 Wszystkie trzy implementacje zostały porównane pod kątem prędkości wykonania.
 Przeanalizowane zostało jak zmieniał się czas wykonywania programu w zależności od zmieniającej się liczby atrybutów,
-rosnącej ilości rekordów, liczby przedzielonych wątków, dostępnej pamięci RAM oraz pamięci typu \textit{Heap Space}.
+rosnącej liczby rekordów, liczby przedzielonych wątków, dostępnej pamięci RAM oraz pamięci typu \textit{Heap Space}.
 Przeprowadzone testy wykazały, że tylko jedna z równoległych wersji okazała
 się być bardziej wydajna niż wersja sekwencyjna. Zastosowanie zrównoleglenia
-na poziomie węzłów pozwoliło na szybszą konstrukcje drzew decyzyjnych, gdy przetwarzane były duże ilości rekordów.
+na poziomie węzłów pozwoliło na szybszą konstrukcje drzew decyzyjnych, gdy przetwarzana była duża liczba rekordów.
 Z kolei implementacja, w której zastosowane zostało zrównoleglenie 
 na poziomie atrybutów, nie przyniosła istotnych korzyści w kontekście czasu wykonywania programu.
 Przyczyną takich rezultatów prawdopodobnie jest wykorzystanie konceptu metadanych.
-Jego celem było zminimalizowanie ilości wykonywanych działań, które są najbardziej złożone obliczeniowo.
+Jego celem było zminimalizowanie liczby wykonywanych działań, które są najbardziej złożone obliczeniowo.
 Z tego powodu, w implementacji równoległego przetwarzania atrybutów, działania przetwarzane współbieżnie
 były niewystarczająco złożone obliczeniowo, aby wykorzystanie techniki równoległości przyniosło pozytywny efekt.
 
 Istotną kwestią, która mogłaby zostać poprawiona w ramach dalszego rozszerzania pracy, jest ulepszenie implementacji zrównoleglającej węzły
-w zakresie zużycia pamięci \textit{Heap Space}. W skrajnych przypadkach, gdy przetwarzane są duże ilości rekordów lub atrybutów,
+w zakresie zużycia pamięci \textit{Heap Space}. W skrajnych przypadkach, gdy przetwarzana jest duża rekordów lub atrybutów,
 zbyt duże zużycie pamięci nie pozwala na pomyślne zakończenie konstrukcji drzewa decyzyjnego. Przykładem rozwiązania, które
 mogłoby zostać zrealizowane w ramach kontynuacji oraz optymalizacji pracy, to technika dostarczania danych
 we fragmentach, która została przedstawiona w przeanalizowanej literaturze.
@@ -1275,6 +1288,7 @@ we fragmentach, która została przedstawiona w przeanalizowanej literaturze.
 \addcontentsline{toc}{section}{Literatura}
 \begin{thebibliography}{20}
 
+    \bibitem{machine-learning-parallel-beginnings} David E. Rumelhart, James L. McClelland, PDP Research Group. Parallel Distributed Processing, Vol. 1. A Bradford Book, 1987.
     \bibitem{algorytmy-do-konstruowania-drzew-decyzyjnych} Kozak, J., \& Juszczuk, P. (2016). Algorytmy do konstruowania drzew decyzyjnych w przewidywaniu skuteczności kampanii telemarketingowej banku. Studia Informatica Pomerania nr 1/2016 (39). doi: 10.18276/si.2016.39-05
     \bibitem{data-mining-with-decision-trees} Lior Rokach, Oded Maimon. Data Mining with Decision Trees. Theory and Applications. World Scientific Publishing Company. Israel, 2014.
     \bibitem{eksploracja-danych} Dariusz Majerek. Eksploracja danych. [Online] \url{https://dax44.github.io/datamining/drzewa-decyzyjne.html#w%C4%99z%C5%82y-i-ga%C5%82%C4%99zie}. Dostęp: 02.12.2022
