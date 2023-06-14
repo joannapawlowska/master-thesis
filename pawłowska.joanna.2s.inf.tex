@@ -552,9 +552,9 @@ Z tego powodu wzorce traktowane są raczej jako ogólne wskazówki, które mogą
 tworzone są zgodnie z kilkoma wzorcami, które łączone są ze sobą w celu stworzenia implementacji dopasowanej do konkretnego przypadku.
 W tym rozdziale opisane zostały wybrane wzorce programowania równoległego.
 
-\subsubsection{Wzorzec Master-Slave}
-Wzorzec \textit{Master-Slave}, zaprezentowany na rysunku \ref{fig:master-slave}, inaczej nazywany jest wzorcem \textit{Manager-Worker}. Wątek, który nazywany jest zarządcą (ang. master/manager)
-definiuje zadania i rozdziela je pomiędzy wykonawców (ang. worker/slave). Gdy wykonawca zrealizuje zadanie, przesyła
+\subsubsection{Wzorzec Manager-Worker}
+Wzorzec \textit{Manager-Worker} zaprezentowany jest na rysunku \ref{fig:manager-worker}. Wątek, który nazywany jest zarządcą (ang. manager)
+definiuje zadania i rozdziela je pomiędzy wykonawców (ang. worker). Gdy wykonawca zrealizuje zadanie, przesyła
 otrzymane wyniki zarządcy, którego zadaniem jest scalić wszystkie zgromadzone wyniki w jedno rozwiązanie problemu.
 Wzorzec nie sprawdza się w problemach o~dużym rozdrobnieniu zadań. Wówczas dochodzi do sytuacji, w której wykonawcy realizują poszczególne zadania
 szybciej, niż zarządca jest w stanie je generować i rozdzielać \cite{wprowadzenie-do-obliczen-rownoleglych}.
@@ -562,8 +562,8 @@ szybciej, niż zarządca jest w stanie je generować i rozdzielać \cite{wprowad
 \begin{figure}[H]
     \centering
 	\includegraphics[width=0.5\textwidth]{patterns-master-slave.pdf}
-    \caption{Wzorzec \textit{Master-Slave}. Źródło: Opracowanie własne.}
-    \label{fig:master-slave}
+    \caption{Wzorzec \textit{Manager-Worker}. Źródło: Opracowanie własne.}
+    \label{fig:manager-worker}
 \end{figure}
 
 \subsubsection{Wzorzec Fork-Join}
