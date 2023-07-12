@@ -227,14 +227,14 @@ dobrze dopasowany do danych treningowych. Wystąpienie nadmiernego dopasowania s
 klasyfikator dobrze sprawdza się dla danych treningowych, jednak zmniejsza się jego zdolność
 generalizacji. Oznacza to, że dla elementu $x_q \in X$, mniejsze jest prawdopodobieństwo na otrzymanie
 poprawnej predykcji $DT(S)(x_q)$. W przypadku drzew decyzyjnych nadmierne dopasowanie
-występuje najczęściej, gdy drzewo ma zbyt wiele węzłów w stosunku do ilości dostępnych danych treningowych.
+występuje najczęściej, gdy drzewo ma zbyt wiele węzłów w stosunku do ilości dostępnych danych treningowych \cite{classification-problem-decision-trees}.
 
 W celu uniknięcia lub minimalizacji zjawiska nadmiernego dopasowania stosuje się technikę przycinania drzewa (ang. pruning).
 Polega ona na odpowiednim upraszczaniu drzewa poprzez zmniejszanie jego rozmiaru.
 W drzewie decyzyjnym wycina się wybrane fragmenty (poddrzewa), których znaczenie jest niewielkie podczas przeprowadzania
 predykcji obiektów. Poddrzewo, które zostało wybrane do wycięcia, najczęściej zastępuje się liściem z etykietą klasy, która
 najczęściej występuje w wycinanym podzbiorze. Przekształcenia drzewa mogą pogorszyć dokładność klasyfikacji
-na zbiorze danych treningowych, jednak często skutkują dokładniejszymi predykcjami na obiektach spoza zbioru treningowego.
+na zbiorze danych treningowych, jednak często skutkują dokładniejszymi predykcjami na obiektach spoza zbioru treningowego \cite{classification-problem-decision-trees}.
 
 \subsection{Schemat konstrukcji}
 Proces budowania drzewa oparty jest na wielokrotnym podziale danych. Pierwszy krok polega na przypisaniu
@@ -555,7 +555,7 @@ W tym rozdziale opisane zostały wybrane wzorce programowania równoległego.
 \subsubsection{Wzorzec Manager-Worker}
 Wzorzec \textit{Manager-Worker} zaprezentowany jest na rysunku \ref{fig:manager-worker}. Wątek, który nazywany jest zarządcą (ang. manager)
 definiuje zadania i rozdziela je pomiędzy wykonawców (ang. worker). Gdy wykonawca zrealizuje zadanie, przesyła
-otrzymane wyniki zarządcy, którego zadaniem jest scalić wszystkie zgromadzone wyniki w jedno rozwiązanie problemu.
+otrzymane wyniki zarządcy, którego zadaniem jest scalić wszystkie zgromadzone wyniki w jedno rozwiązanie problemu \cite{introduction-to-parallel-computing}.
 Wzorzec nie sprawdza się w problemach o~dużym rozdrobnieniu zadań. Wówczas dochodzi do sytuacji, w której wykonawcy realizują poszczególne zadania
 szybciej, niż zarządca jest w stanie je generować i rozdzielać \cite{wprowadzenie-do-obliczen-rownoleglych}.
 
@@ -590,7 +590,7 @@ Idea mapowania pochodzi z technik stosowanych w~funkcjonalnych językach program
 Kilka mapowań może być połączonych w łańcuchy składające się na większe funkcje.
 Etapy ,,map" i ,,reduce" są od siebie bardziej niezależne niż etapy ,,fork" i ,,join".
 Mapowanie może występować bez redukcji, a redukcja bez mapowania~\cite{parallel-design-patterns}.
-Graficzne przedstawienie wzorca \textit{Map-Reduce} zaprezentowane jest na rysunku \ref{fig:map-reduce}.
+Graficzne przedstawienie wzorca \textit{Map-Reduce} zaprezentowane jest na rysunku~\ref{fig:map-reduce}.
 
 \begin{figure}[H]
     \centering
@@ -602,7 +602,7 @@ Graficzne przedstawienie wzorca \textit{Map-Reduce} zaprezentowane jest na rysun
 \subsubsection{Wzorzec Work Pool}\label{work-pool}
 Wzorzec puli zadań \textit{Work Pool} wykorzystywany jest w algorytmach, w których zadania generowane są dynamicznie
 lub gdy istotnie różnią się złożonością. Zadania przechowywane są w strukturze danych, która dostępna
-jest w pamięci współdzielonej. Najczęściej wykorzystywane struktury to lista, kolejka priorytetowe
+jest w pamięci współdzielonej \cite{introduction-to-parallel-computing}. Najczęściej wykorzystywane struktury to lista, kolejka priorytetowe
 czy tablica z haszowaniem. W momencie, gdy wątek zakończył obliczanie zadania, dostarczane jest mu
 kolejne zadanie przechowywane w strukturze \cite{wprowadzenie-do-obliczen-rownoleglych}.
 Rysunek \ref{fig:work-pool} prezentuje schemat z kolejką zdań i trzema wątkami.
@@ -794,7 +794,7 @@ Jako narzędzie został wybrany język programowania \textit{Java}, dlatego impl
 obiektowym. Język \textit{Java} oferuje wiele możliwości programowania współbieżnego i równoległego. W terminologii \textit{Java}
 pojęcie wątek nabiera kolejnego znaczenia. Programista ma możliwość tworzenia wielu wątków, które zarządzane są
 przez JVM (ang.~Java Virtual Machine) w celu równoległego wykonywania kodu. Inne dostępne mechanizmy to~synchronizacja,
-blokady (ang. locks), semafory, interfejsy \textit{Callable} oraz \textit{Future}, zmienne typu \textit{atomic} czy framework \textit{Executor}.
+blokady (ang. locks), semafory, interfejsy \textit{Callable} oraz \textit{Future}, zmienne typu \textit{atomic} czy framework \textit{Executor} \cite{java-concurency-in-practice}.
 Podczas fazy projektowania została przeprowadzona analiza, które z mechanizmów będą konieczne i pomocne
 w implementacji. Ostatecznie w programie wykorzystane zostały głównie interfejsy \textit{Callable}, \textit{Future} oraz framework \textit{Executor}.
 
@@ -1123,12 +1123,12 @@ Kolejnym czynnikiem ważnym podczas przeprowadzania analizy wydajności programu
 Pamięć operacyjna RAM pełni funkcje pośrednika pomiędzy pamięcią tymczasową a dyskami twardymi.
 W pamięci tej przechowywane są m.in.: informacje na temat działających programów. Procesor wykorzystuje informacje
 przechowywane w pamięci RAM w celu zarządzania procesami.
-Większa ilość pamięci RAM korzystnie wpływa na szybkość i płynność działania programów. 
+Większa ilość pamięci RAM korzystnie wpływa na szybkość i płynność działania programów \cite{the-art-of-multiprocessor-programming}. 
 Z powodu braku możliwości zwiększenia ilości pamięci RAM w komputerze, na którym przeprowadzane były testy, zdecydowano, że
 przeprowadzona zostanie serie testów na oddzielnym sprzęcie o innych parametrach. Program został uruchomiony
 dla jednakowego zbioru danych na dwóch różnych komputerach z dostępnymi 8GB oraz 16 GM pamięci RAM.
 Wykres \ref{fig:analysis-start} został rozszerzony o rezultaty zgromadzone podczas testów na komputerze z 8GB pamięci RAM.
-Wyniki zaprezentowane są na rysunku \ref{fig:analysis-ram}.
+Wyniki zaprezentowane są na rysunku~\ref{fig:analysis-ram}.
 
 \begin{figure}[H]
     \centering
@@ -1160,7 +1160,7 @@ pamięci RAM przydzielonej maszynie wirtualnej. Parametr \verb|-Xmx| umożliwia 
 wartości sterty (ang. Heap Size). Przykładowo dodając parametr \verb|-Xmx4096m|
 maksymalna wartość \textit{Heap Size} wynosi 4096 megabajtów. Powiększanie \textit{Heap Size} ma sens, jeśli do pamięci programu
 ładowane są bardzo duże ilości danych. Jeśli wartość pozostanie na niskim poziomie, wówczas pamięć zostaje przepełniona, w wyniku czego
-program zostaje przerwany z powodu błędu typu \verb|java.lang.OutOfMemoryError|.
+program zostaje przerwany z powodu błędu typu \verb|java.lang.OutOfMemoryError| \cite{java-memeory-management}.
 
 \begin{figure}[H]
     \centering
@@ -1182,7 +1182,7 @@ tworzonych w ramach maszyny wirtualnej \textit{Javy}. Każdy wątek tworzony prz
 z klasą \verb|java.lang.Thread|. Tworzenie instancji wymienionej klasy rozpoczyna cykl życia wątku.
 Dopuszczalne stany, w których może znajdować się wątek to m.in.: \verb|RUNNABLE|, 
 \verb|BLOCKED| czy \verb|WAITING|. Programista może zarządzać liczbą wątków poprzez jawne tworzenie instancji
-klasy \verb|Thread| lub też może skorzystać z interfejsu \verb|Executor|, w ramach którego tworzone są pule wątków.
+klasy \verb|Thread| lub też może skorzystać z interfejsu \verb|Executor|, w ramach którego tworzone są pule wątków \cite{java-threads}.
 
 Rysunek \ref{fig:analysis-threads} przedstawia wyniki testów przeprowadzonych pod kątem zmiennej
 liczby przydzielanych wątków.
@@ -1196,7 +1196,7 @@ liczby przydzielanych wątków.
 
 Liczba wątków, którą należy użyć w programie \textit{Java} zależy od wielu czynników. Największe znaczenie
 mają zasoby sprzętowe, charakter oraz obciążenie programu.
-Zaleca się stosowanie liczby wątków równej lub trochę większej od liczby dostępnych rdzeni logicznych.
+Zaleca się stosowanie liczby wątków równej lub trochę większej od liczby dostępnych rdzeni logicznych \cite{java-threads}.
 Komputer, na którym przeprowadzano testy posiada 4 rdzenie fizyczne co w konsekwencji daje do
 dyspozycji 8 rdzeni logicznych. Na grafice \ref{fig:analysis-threads} widać, że
 zbyt mała liczba wątków istotnie wydłuża czas pracy programu.
@@ -1288,15 +1288,17 @@ we fragmentach, która została przedstawiona w przeanalizowanej literaturze.
 \addcontentsline{toc}{section}{Literatura}
 \begin{thebibliography}{20}
 
-    \bibitem{machine-learning-parallel-beginnings} David E. Rumelhart, James L. McClelland, PDP Research Group. Parallel Distributed Processing, Vol. 1. A Bradford Book, 1987.
+    \bibitem{machine-learning-parallel-beginnings} David E. Rumelhart \& James L. McClelland, PDP Research Group. Parallel Distributed Processing, Vol. 1. A Bradford Book, 1987.
     \bibitem{algorytmy-do-konstruowania-drzew-decyzyjnych} Kozak, J., \& Juszczuk, P. (2016). Algorytmy do konstruowania drzew decyzyjnych w przewidywaniu skuteczności kampanii telemarketingowej banku. Studia Informatica Pomerania nr 1/2016 (39). doi: 10.18276/si.2016.39-05
     \bibitem{data-mining-with-decision-trees} Lior Rokach, Oded Maimon. Data Mining with Decision Trees. Theory and Applications. World Scientific Publishing Company. Israel, 2014.
+    \bibitem{classification-problem-decision-trees} Ashima Gambhir. Classification Problem in Data Mining Using Decision Trees. LAP LAMBERT Academic Publishing, 2019.
     \bibitem{eksploracja-danych} Dariusz Majerek. Eksploracja danych. [Online] \url{https://dax44.github.io/datamining/drzewa-decyzyjne.html#w%C4%99z%C5%82y-i-ga%C5%82%C4%99zie}. Dostęp: 02.12.2022
    
-    \bibitem{parallel-design-patterns} OpenCSF Project. [Online] \url{https://w3.cs.jmu.edu/kirkpams/OpenCSF/Books/csf/html/ParallelDesign.html}. Dostęp: 12.12.2022
     \bibitem{programowanie-rozproszone-i-rownolegle} Andrzej Karbowski, Ewa Niewiadomska-Szynkiewicz. Programowanie równoległe i rozproszone. Oficyna Wydawnicza Politechniki Warszawskiej. Warszawa, 2009.
     \bibitem{wprowadzenie-do-obliczen-rownoleglych} Czech Zbigniew J. Wprowadzenie do obliczeń równoległych. Wydawnictwo Naukowe PWN. Wyd. 2, 2013.
     \bibitem{skrypt} Krzysztof Banaś, Skrypt. Programowanie równoległe i rozproszone. Wydział Fizyki, Matematyki i Informatyki Politechniki Krakowskiej. Kraków, 2011.
+    \bibitem{introduction-to-parallel-computing} Grama, A., Anshul Gupta, A., George Karypis, G. \& Kumar, V. Introduction to Parallel Computing. Addison-Wesley Professional, 2003.
+    \bibitem{parallel-design-patterns} OpenCSF Project. [Online] \url{https://w3.cs.jmu.edu/kirkpams/OpenCSF/Books/csf/html/ParallelDesign.html}. Dostęp: 12.12.2022
 
     \bibitem{parallel-implementation-decision-tree} Amado, N., Gama, J., \& Silva, F. (2001). Parallel Implementation of Decision Tree Learning Algorithms. Lecture Notes in Computer Science, 6-13. doi:10.1007/3-540-45329-6\_4 
     \bibitem{parallelization-of-decision-tree-al} Kubota, K., Nakase, A., Sakai, H., \& Oyanagi, S. (2000). Parallelization of decision tree algorithm and its performance evaluation. Proceedings Fourth International Conference/Exhibition on High Performance Computing in the Asia-Pacific Region. doi:10.1109/hpc.2000.843500
@@ -1304,6 +1306,16 @@ we fragmentach, która została przedstawiona w przeanalizowanej literaturze.
     \bibitem{parallel-algorithm-to-induce-decision-trees} Rcega, A. F.-A., Suarez-Cansino, J., \& Flores-Flores, L. G. (2013). A parallel algorithm to induce decision trees for large datasets. 2013 XXIV International Conference on Information, Communication and Automation Technologies (ICAT). doi:10.1109/icat.2013.6684045 
     \bibitem{improved-id3-decision-tree} Maheshwari, S., Jatav, VK., \& Meena, YK. (2011). Improved ID3 Decision Tree Generation using Shared-Memory and Multi-Threading Approach. 2011 International Conference on Education Technology and Computer (ICETC 2011). doi:10.13140/2.1.3216.2247
     \bibitem{research-parallel-map-reduce} Gu, Y., Shi, G., Cai, H., Chen, Y. \& Sun, Y. (2013). Research of Parallel Decision Tree Algorithm Based on Mapreduce. Information Technology Journal, 12: 7345-7352. doi: 10.3923/itj.2013.7345.7352
+    
+    \bibitem{java-concurency-in-practice} Goetz, B., Peierls, T., Bloch, J., Bowbeer, J., Holmes, D. \& Lea, D. Java Concurrency in Practice. Addison - Wesley, 2006.
+    \bibitem{concurrent-programming} Lea, D. Concurrent Programming in Java: Design Principles and Pattern, 2nd Edition. Addision-Wesley, 2000.
+    \bibitem{the-art-of-multiprocessor-programming} Herlihy, M., \& Shavit, N. The Art of Multiprocessor Programming, Revised Reprint. Morgan Kaufmann, 2012.
+    \bibitem{java-memeory-management} Maaike van Putten \& Seán Kennedy. Java Memory Management. Packt Publishing, 2022.
+    \bibitem{java-threads} Oaks, S., \& Wong, H. Java Threads: Understanding and Mastering Concurrent Programming. O'Reilly, 2004.
+    \bibitem{data-visualisation-in-python} Nelson, D. Data Visualization in Python. Stack Abuse, 2021.
+    \bibitem{python-for-data-analysis} McKinney, W. Python for Data Analysis: Data Wrangling with Pandas, NumPy, and IPython. O'Reilly, 2018.
+    \bibitem{linux-command-line} Blum, R., \& Bresnahan, C. (Author). Linux Command Line and Shell Scripting Bible 4th Edition. Wiley, 2021.
+    \bibitem{learining-bash} Newham C. Learning the bash Shell: Unix Shell Programming. O'Reilly, 2005.
 
 \end{thebibliography}
 
